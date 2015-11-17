@@ -19,20 +19,12 @@ module.exports = function(app, passport){
 
     app.get('/dashboard', isLoggedIn, function(req, res, next) {
         if(req.user.role == 'coordinator'){
-            res.render('dashboard', { title: 'Coordinator Area'  });
+            res.render('coordinator_dashboard', { title: 'Coordinator Dashboard'  });
         }
         else{ // monitor
-            res.render('dashboard', { title: 'Monitor Area'  });
+            res.render('monitor_dashboard', { title: 'Monitor Dashboard'  });
         }
       
-    });
-
-    app.get('/loginFailure', function(req, res, next) {
-      res.send('Failed to authenticate');
-    });
-
-    app.get('/loginSuccess', function(req, res, next) {
-      res.send('Successfully authenticated');
     });
 
     app.use(function(req, res, next) {

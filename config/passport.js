@@ -23,11 +23,11 @@ module.exports = function(passport){
           }
 
           if (!user) {
-            return done(null, false, {message: "El usuario no existe"});
+            return done(null, false, {message: "Credenciales incorrectas"});
           }
 
           if (user.password != password) {
-            return done(null, false, {message: "Contraseña incorrecta"});
+            return done(null, false, {message: "Credenciales incorrectas"});
           }
 
           return done(null, user);
