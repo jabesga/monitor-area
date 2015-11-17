@@ -39,3 +39,4 @@ require('./config/passport')(passport);
 require('./app/routes')(app,passport);
 
 app.listen(port);
+console.log('\tListening on port ' + port);

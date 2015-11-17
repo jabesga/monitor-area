@@ -12,6 +12,11 @@ module.exports = function(app, passport){
         })
     );
 
+    app.get('/logout', function(req, res, next){
+        req.logOut();
+        res.redirect('/');
+    });
+
     app.get('/dashboard', isLoggedIn, function(req, res, next) {
         if(req.user.role == 'coordinator'){
             res.render('dashboard', { title: 'Coordinator Area'  });
