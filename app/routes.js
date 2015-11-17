@@ -13,7 +13,13 @@ module.exports = function(app, passport){
     );
 
     app.get('/dashboard', isLoggedIn, function(req, res, next) {
-      res.render('dashboard', { title: 'Monitor Area'  });
+        if(req.user.role == 'coordinator'){
+            res.render('dashboard', { title: 'Coordinator Area'  });
+        }
+        else{ // monitor
+            res.render('dashboard', { title: 'Monitor Area'  });
+        }
+      
     });
 
     app.get('/loginFailure', function(req, res, next) {
