@@ -37,18 +37,38 @@ module.exports = function(app, passport){
       
     });
 
+
+    var mail = require('../app/mailer');
+
     app.post('/add-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
         if(req.user.role == 'coordinator'){
-            Users.count({}, function(err,count){
+            Users.findOne({}, {}, { sort: { '_id' : -1 } }, function(err,user){
                 var monitor = new Users({
-                    _id : count+1,
-                    username: 'test3',
-                    password: 'test3',
-                    name : 'Sr.Test',
-                    surname : 'Walter',
-                    email : 'test3@test3.com',
+                    _id : user._id+1,
+                    username: req.body['name'] + req.body['surname'],
+                    password: 123456, // TODO: Hashear contrasenia
+                    name : req.body['name'],
+                    surname : req.body['surname'],
+                    email : req.body['email'],
                     role : 'monitor'
                 });
+                
+                if(req.body['notify'] == 'true'){
+                    options = {
+                        'to': req.body['email'],
+                        'text': 'Su nombre de usuario es ' + req.body['name'] + req.body['surname'] + ' y su contraseña es 123456',
+                        'html': 'Su nombre de usuario es ' + req.body['name'] + req.body['surname'] + ' y su contraseña es 123456'
+                    }
+                    mail.sendMail(options, function(response){
+                        if(response == 'sent'){
+                            console.log("Mail sent: " + response)
+                        }
+                        else{
+                            console.log("Error: " +response)
+                        }
+                        
+                    })                    
+                }
                 monitor.save(function(err, saved){
                     if(err){
                         throw err;
@@ -60,12 +80,20 @@ module.exports = function(app, passport){
             });
         }
     });
+
+    app.post('/remove-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
+        if(req.user.role == 'coordinator'){
+            Users.findOneAndRemove({_id: req.body['data']}, function(err, doc, result){
+                if(err){
+                    throw err;
+                    console.log(err);
+                }else{
+                    res.send({redirect: '/dashboard'});
+                }
+            });
+        }
+    });    
     
-    function getAllUsers(err, users){
-        console.log(users);
-    }
-
-
     app.use(function(req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;
