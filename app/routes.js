@@ -1,3 +1,5 @@
+var Users = require('../app/models/user');
+
 module.exports = function(app, passport){
 
     app.get('/', function(req, res, next) {
@@ -17,15 +19,52 @@ module.exports = function(app, passport){
         res.redirect('/');
     });
 
-    app.get('/dashboard', isLoggedIn, function(req, res, next) {
+    app.get('/dashboard', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
         if(req.user.role == 'coordinator'){
-            res.render('coordinator_dashboard', { title: 'Coordinator Dashboard'  });
+            Users.find({}, function(err,users){ // {role:'monitor'}
+                var user_list = [];
+                users.forEach(function(user){
+                    user_list.push([{'_id': user._id, 'username': user.username, 'name': user.name, 'surname': user.surname, 'email': user.email}]);
+                });
+                
+                res.render('coordinator_dashboard', { title: 'Panel de coordinador', 'monitors': user_list });
+            });
         }
         else{ // monitor
             res.render('monitor_dashboard', { title: 'Monitor Dashboard'  });
         }
       
     });
+
+    app.post('/add-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
+        if(req.user.role == 'coordinator'){
+            Users.count({}, function(err,count){
+                var monitor = new Users({
+                    _id : count+1,
+                    username: 'test3',
+                    password: 'test3',
+                    name : 'Sr.Test',
+                    surname : 'Walter',
+                    email : 'test3@test3.com',
+                    role : 'monitor'
+                });
+                monitor.save(function(err, saved){
+                    if(err){
+                        throw err;
+                        console.log(err);
+                    }else{
+                        res.send({redirect: '/dashboard'});
+                    }
+                });
+            });
+        }
+    });
+    
+    function getAllUsers(err, users){
+        console.log(users);
+    }
+
 
     app.use(function(req, res, next) {
         var err = new Error('Not Found');

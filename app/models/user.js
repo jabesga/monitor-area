@@ -2,12 +2,15 @@ var mongoose = require('mongoose');
 
 
 var schema = new mongoose.Schema({
-      username: String,
-      password: String,
-      email : String,
-      role : String,
+    _id : Number,
+    username: String,
+    password: String,
+    name : String,
+    surname : String,
+    email : String,
+    role : String
     }, {
-      collection: 'users'
+        collection: 'users'
     });
 
 var Users = mongoose.model('users', schema);
