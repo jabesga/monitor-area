@@ -18,7 +18,7 @@ module.exports = {
     sendMail: function(options, callback){
         // setup e-mail data with unicode symbols
         var mailOptions = {
-            from: 'jonan.bsg@gmail.com', // sender address
+            from: settings.gmail.user, // sender address
             to: options['to'], // list of receivers
             subject: 'Cuenta de monitor creada en el Area de monitores de Camptecnologico', // Subject line
             text: options['text'], // plaintext body
