@@ -28,7 +28,7 @@ build/Release
 node_modules
 
 # Ignore temp directory with settings
-temp
+temp/*
 # But not these files
 !temp/settings_sample.js
 
