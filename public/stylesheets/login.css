@@ -7,17 +7,11 @@
         border-radius: 0;
     }
 }
-
-a {
-  color: #00B7FF;
-}
-
 .form-signin{
     max-width: 350px;
     padding: 15px;
     margin: 0 auto;
 }
-
 .form-signin-heading{
     padding-bottom: 10px
 }

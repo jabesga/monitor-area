@@ -10,7 +10,6 @@ module.exports = function(app, passport){
         }
         else{
             req.session.returnTo = req.path; 
-            console.log(req.session.returnTo);
             res.redirect('/login');
         }
         // if they aren't redirect them to the home page
@@ -26,10 +25,6 @@ module.exports = function(app, passport){
         }
     });
 
-    app.get('/', function(req, res, next) {
-        res.redirect('/monitors') // TODO: Render dashboard
-    });
-
     app.get('/login', function(req, res, next){
         res.render('login', { title: 'Monitor Area', message: req.flash('error') });
     });
@@ -37,7 +32,7 @@ module.exports = function(app, passport){
     app.post('/login', 
         passport.authenticate('local', {
             successRedirect: '/previouspage',
-            failureRedirect: '/',
+            failureRedirect: '/login',
             failureFlash: true
         })
     );
@@ -45,6 +40,15 @@ module.exports = function(app, passport){
     app.get('/logout', function(req, res, next){
         req.logOut();
         res.redirect('/');
+    });
+
+    app.get('/', isLoggedIn, function(req, res, next) {
+        if(req.user.role == 'coordinator'){
+            res.render('c_dashboard');
+        }
+        else{
+            res.render('m_dashboard');   
+        }
     });
 
     app.get('/monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
@@ -55,7 +59,7 @@ module.exports = function(app, passport){
                     user_list.push({'_id': user._id, 'username': user.username, 'name': user.name, 'surname': user.surname, 'email': user.email});
                 });
                 
-                res.render('monitors', { title: 'Panel de coordinador', 'monitors': user_list });
+                res.render('c_monitors', { title: 'Panel de coordinador', 'monitors': user_list });
             });
         }
       
