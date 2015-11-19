@@ -3,33 +3,51 @@ var Classrooms = require('../app/models/classroom');
 
 module.exports = function(app, passport){
 
-    app.get('/', function(req, res, next) {
-        res.render('login', { title: 'Monitor Area', message: req.flash('error') });
-    });
+    function isLoggedIn(req, res, next) {
+        // if user is authenticated in the session, carry on 
+        if (req.isAuthenticated()){
+            return next();
+        }
+        else{
+            req.session.returnTo = req.path; 
+            console.log(req.session.returnTo);
+            res.redirect('/login');
+        }
+        // if they aren't redirect them to the home page
+    }
 
-    app.post('/login', 
-        passport.authenticate('local', {
-            successRedirect: '/backToPage',
-            failureRedirect: '/',
-            failureFlash: true
-        })
-    );
-    app.get('/backToPage', function(req, res, next){
+    app.get('/previouspage', function(req, res, next){
         if(req.session.returnTo){
             res.redirect(req.session.returnTo);
             delete req.session.returnTo;
         }
         else{
-            res.redirect('/monitors')
+            res.redirect('/')
         }
     });
+
+    app.get('/', function(req, res, next) {
+        res.redirect('/monitors') // TODO: Render dashboard
+    });
+
+    app.get('/login', function(req, res, next){
+        res.render('login', { title: 'Monitor Area', message: req.flash('error') });
+    });
+
+    app.post('/login', 
+        passport.authenticate('local', {
+            successRedirect: '/previouspage',
+            failureRedirect: '/',
+            failureFlash: true
+        })
+    );
+
     app.get('/logout', function(req, res, next){
         req.logOut();
         res.redirect('/');
     });
 
     app.get('/monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-
         if(req.user.role == 'coordinator'){
             Users.find({}, function(err,users){ // {role:'monitor'}
                 var user_list = [];
@@ -39,9 +57,6 @@ module.exports = function(app, passport){
                 
                 res.render('monitors', { title: 'Panel de coordinador', 'monitors': user_list });
             });
-        }
-        else{ // monitor
-            res.redirect('/');
         }
       
     });
@@ -170,6 +185,7 @@ module.exports = function(app, passport){
         err.status = 404;
         next(err);
     });
+    
     // error handlers
     // development error handler
     // will print stacktrace
@@ -190,17 +206,4 @@ module.exports = function(app, passport){
             error: {}
         });
     });   
-    // route middleware to make sure a user is logged in
-    function isLoggedIn(req, res, next) {
-
-        // if user is authenticated in the session, carry on 
-        if (req.isAuthenticated())
-            return next();
-        // if they aren't redirect them to the home page
-        else{
-            req.session.returnTo = req.path; 
-            res.redirect('/');
-        }
-        
-    }
 }
