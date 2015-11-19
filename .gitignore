@@ -29,6 +29,8 @@ node_modules
 
 # Ignore temp directory with settings
 temp
+# But not these files
+!temp/settings_sample.js
 
 # Optional npm cache directory
 .npm

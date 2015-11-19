@@ -37,6 +37,23 @@ module.exports = function(app, passport){
       
     });
 
+    app.get('/excel', function(req, res, next) {
+        var Parser = require('parse-xl'),
+        sample = new Parser('./temp/test.xlsx');
+ 
+        var classroom_name = console.log(Object.keys(sample['data']));
+        // get values in a column 
+        //console.log(sample.values('Hoja1', 'Nombre'));
+        /*
+          '\nValues in column `XYZ` of `Transcript`:', 
+          sample.values('Transcript', 'XYZ'), 
+          '\n'
+        );*/
+ 
+        // stream parsed records as line-delimited JSON 
+        //sample.recordStream('Transcript').pipe(process.stdout);
+        res.send(sample['data']);
+    });
 
     var mail = require('../app/mailer');
 
