@@ -35,53 +35,46 @@ html
                             a(href='#') Inicio
                             span.sr-only (current)
                     ul.nav.nav-sidebar
-                        li.active
-                            a(href='#') Monitores
+                        li
+                            a(href='/monitors') Monitores
                     ul.nav.nav-sidebar
                         li
                             a(href='#') Tecnologias
                     ul.nav.nav-sidebar
-                        li
+                        li.active
                             a(href='#') Clases
                         li
                             a(href='#') Colegios
                 div.col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
                     h1.page-header= title
-                    h2.sub-header Monitores
-     
-                    div.table-responsive
-                        table.table.table-striped
-                            thead
-                                tr
-                                    th #
-                                    th Nombre de usuario
-                                    th Nombre
-                                    th Apellido
-                                    th Email
-                                    th
-                            tbody
-                                each monitor in monitors
+                    h2.sub-header Clases
+                    each element in classrooms_list
+                        h3.sub-header #{element.code_name}
+                        div.table-responsive
+                            table.table.table-striped
+                                thead
                                     tr
-                                        each key in monitor
-                                            td #{key._id}
-                                            td #{key.username}
-                                            td #{key.name}
-                                            td #{key.surname}
-                                            td #{key.email}
-                                            td
-                                                button(class="delete-monitor" id="#{key._id}" type="button" class="close" data-toggle="modal" data-target="#removeMonitor") &times;
+                                        th Nombre
+                                        th Apellido
+                                tbody
+                                    each student in element.students
+                                        tr
+                                            td #{student.nombre}
+                                            td #{student.apellido}                                           
+
+
 
                     if message                                     
                         div(class="alert alert-success alert-dismissible" role="alert") #{message}
                             button(type="button" class="close" data-dismiss="alert") &times;
-                    button.btn-default.btn.pull-right(data-toggle="modal" data-target="#addMonitor") Añadir monitor
+                    button.btn-default.btn.pull-right(data-toggle="modal" data-target="#addMonitor") Añadir clase
 
                     div.modal.fade#addMonitor(role="dialog" aria-labelledby="basicModal" aria-hidden="true")
                         div.modal-dialog
                             div.modal-content
                                 div.modal-header
                                     button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times;
-                                    h4.modal-title Añadir monitor
+                                    h4.modal-title Añadir clase
                                 div.modal-body
                                     form.form-horizontal(action="#" method="post" id="monitor")
                                         div.form-group

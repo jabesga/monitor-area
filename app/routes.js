@@ -1,58 +1,112 @@
 var Users = require('../app/models/user');
+var Classrooms = require('../app/models/classroom');
 
 module.exports = function(app, passport){
 
     app.get('/', function(req, res, next) {
-        res.render('index', { title: 'Monitor Area', message: req.flash('error') });
+        res.render('login', { title: 'Monitor Area', message: req.flash('error') });
     });
 
     app.post('/login', 
         passport.authenticate('local', {
-            successRedirect: '/dashboard',
+            successRedirect: '/backToPage',
             failureRedirect: '/',
             failureFlash: true
         })
     );
-
+    app.get('/backToPage', function(req, res, next){
+        if(req.session.returnTo){
+            res.redirect(req.session.returnTo);
+            delete req.session.returnTo;
+        }
+        else{
+            res.redirect('/monitors')
+        }
+    });
     app.get('/logout', function(req, res, next){
         req.logOut();
         res.redirect('/');
     });
 
-    app.get('/dashboard', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+    app.get('/monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
         if(req.user.role == 'coordinator'){
             Users.find({}, function(err,users){ // {role:'monitor'}
                 var user_list = [];
                 users.forEach(function(user){
-                    user_list.push([{'_id': user._id, 'username': user.username, 'name': user.name, 'surname': user.surname, 'email': user.email}]);
+                    user_list.push({'_id': user._id, 'username': user.username, 'name': user.name, 'surname': user.surname, 'email': user.email});
                 });
                 
-                res.render('coordinator_dashboard', { title: 'Panel de coordinador', 'monitors': user_list });
+                res.render('monitors', { title: 'Panel de coordinador', 'monitors': user_list });
             });
         }
         else{ // monitor
-            res.render('monitor_dashboard', { title: 'Monitor Dashboard'  });
+            res.redirect('/');
         }
       
     });
 
+    app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
+        if(req.user.role == 'coordinator'){
+            
+            Classrooms.find({}, function(err,classroom){ // {role:'monitor'}
+                var classrooms_list = [];
+                classroom.forEach(function(element){
+                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
+                })
+                //console.log(classrooms_list)      
+                res.render('classrooms', { title: 'Panel de coordinador', 'classrooms_list': classrooms_list});
+            });   
+            
+        }
+        else{ // monitor
+            res.redirect('/');
+        }
+    });
+
     app.get('/excel', function(req, res, next) {
         var Parser = require('parse-xl'),
-        sample = new Parser('./temp/test.xlsx');
- 
-        var classroom_name = console.log(Object.keys(sample['data']));
-        // get values in a column 
-        //console.log(sample.values('Hoja1', 'Nombre'));
-        /*
-          '\nValues in column `XYZ` of `Transcript`:', 
-          sample.values('Transcript', 'XYZ'), 
-          '\n'
-        );*/
- 
-        // stream parsed records as line-delimited JSON 
-        //sample.recordStream('Transcript').pipe(process.stdout);
-        res.send(sample['data']);
+        school = new Parser('./temp/Escolapios2.xlsx');
+
+        var classrooms_codes = [];
+        // TODO: Se simplifica con una hoja para cada clase
+        school['data']['ListaClases'].filter(function(element){
+            classrooms_codes.push(element['CODIGO']);
+        });
+
+
+        classrooms_codes.forEach(function(code,index){
+            classroom_list_by_code = [];
+            school['data']['Hoja1'].filter(function(element){
+                if (element['Grupo'] == code){
+                    classroom_list_by_code.push({
+                        'nombre': element['Nombre'],
+                        'apellido': element['Apellido 1']
+                    });
+                }
+            });
+
+            //console.log(classroom);
+            var classroom = new Classrooms({
+                code_name: code,
+                school_name: '',
+                schedule : '',
+                monitors : [],
+                students : classroom_list_by_code,
+                technology_id : 0
+            });
+
+            classroom.save(function(err, saved){
+                if(err){
+                    throw err;
+                    console.log(err);
+                }else{
+                    console.log("Clase guardada con codigo: " + code);
+                }
+            });          
+        });
+        res.redirect('/classrooms');
     });
 
     var mail = require('../app/mailer');
@@ -138,10 +192,15 @@ module.exports = function(app, passport){
     });   
     // route middleware to make sure a user is logged in
     function isLoggedIn(req, res, next) {
+
         // if user is authenticated in the session, carry on 
         if (req.isAuthenticated())
             return next();
         // if they aren't redirect them to the home page
-        res.redirect('/');
+        else{
+            req.session.returnTo = req.path; 
+            res.redirect('/');
+        }
+        
     }
 }
