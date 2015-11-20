@@ -31,7 +31,7 @@ node_modules
 temp/*
 # But not these files
 !temp/settings_sample.js
-uploads/
+uploads/*
 # Optional npm cache directory
 .npm
 
