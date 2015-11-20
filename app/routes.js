@@ -2,6 +2,7 @@ var Users = require('../app/models/user');
 var Classrooms = require('../app/models/classroom');
 
 var multer = require('multer');
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './uploads/')
@@ -9,13 +10,13 @@ var storage = multer.diskStorage({
   filename: function (req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now())
   }
-})
+});
+
 var upload = multer({ storage: storage });
 
 module.exports = function(app, passport){
 
     function isLoggedIn(req, res, next) {
-        // if user is authenticated in the session, carry on 
         if (req.isAuthenticated()){
             return next();
         }
@@ -23,7 +24,6 @@ module.exports = function(app, passport){
             req.session.returnTo = req.path; 
             res.redirect('/login');
         }
-        // if they aren't redirect them to the home page
     }
 
     app.get('/previouspage', function(req, res, next){
@@ -74,6 +74,33 @@ module.exports = function(app, passport){
             });
         }
       
+    });
+
+
+    app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
+        if(req.user.role == 'coordinator'){
+            
+            Classrooms.find({}, function(err,classroom){ // {role:'monitor'}
+                var classrooms_list = [];
+                classroom.forEach(function(element){
+                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
+                })
+                //console.log(classrooms_list)      
+                res.render('c_classrooms', { title: 'Panel de coordinador', 'classrooms_list': classrooms_list});
+            });   
+            
+        }
+        else{ // monitor
+            Classrooms.find({'monitors' : req.user._id}, function(err,classroom){
+                var classrooms_list = [];
+                classroom.forEach(function(element){
+                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
+                })
+                res.render('m_classrooms', { 'classrooms_list': classrooms_list});
+            });
+            
+        }
     });
 
     app.get('/import-classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
@@ -131,33 +158,6 @@ module.exports = function(app, passport){
         res.redirect('/classrooms');
     });
 
-    app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-
-        if(req.user.role == 'coordinator'){
-            
-            Classrooms.find({}, function(err,classroom){ // {role:'monitor'}
-                var classrooms_list = [];
-                classroom.forEach(function(element){
-                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
-                })
-                //console.log(classrooms_list)      
-                res.render('c_classrooms', { title: 'Panel de coordinador', 'classrooms_list': classrooms_list});
-            });   
-            
-        }
-        else{ // monitor
-            Classrooms.find({'monitors' : req.user._id}, function(err,classroom){
-                var classrooms_list = [];
-                classroom.forEach(function(element){
-                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
-                })
-                res.render('m_classrooms', { 'classrooms_list': classrooms_list});
-            });
-            
-        }
-    });
-
-
     app.get('/asignar', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         var code_name = 'esc1';
         var username = 'ImanolLlano';
@@ -177,6 +177,7 @@ module.exports = function(app, passport){
             res.redirect('/');
         }
     });
+
     var mail = require('../app/mailer');
 
     app.post('/add-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
@@ -184,7 +185,7 @@ module.exports = function(app, passport){
             Users.findOne({}, {}, { sort: { '_id' : -1 } }, function(err,user){
                 var monitor = new Users({
                     _id : user._id+1,
-                    username: req.body['name'] + req.body['surname'],
+                    username: (req.body['name'] + req.body['surname']).toLowerCase(),
                     password: 123456, // TODO: Hashear contrasenia
                     name : req.body['name'],
                     surname : req.body['surname'],
@@ -239,9 +240,6 @@ module.exports = function(app, passport){
         next(err);
     });
     
-    // error handlers
-    // development error handler
-    // will print stacktrace
     if (app.get('env') === 'development') {
       app.use(function(err, req, res, next) {
         res.status(err.status || 500);
