@@ -27,11 +27,12 @@ build/Release
 # https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
 node_modules
 
+uploads
 # Ignore temp directory with settings
 temp/*
 # But not these files
 !temp/settings_sample.js
-uploads/*
+
 # Optional npm cache directory
 .npm
 
