@@ -12,6 +12,7 @@ var mongoose = require('mongoose');
 var configDB = require('./config/database.js')
 var passport = require('passport');
 
+
 mongoose.connect(configDB.url);
 
 app.use(logger('dev')); // log every request to the console

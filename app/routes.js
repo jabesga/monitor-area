@@ -1,6 +1,17 @@
 var Users = require('../app/models/user');
 var Classrooms = require('../app/models/classroom');
 
+var multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now())
+  }
+})
+var upload = multer({ storage: storage });
+
 module.exports = function(app, passport){
 
     function isLoggedIn(req, res, next) {
@@ -65,28 +76,19 @@ module.exports = function(app, passport){
       
     });
 
-    app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+    app.get('/import-classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
-        if(req.user.role == 'coordinator'){
-            
-            Classrooms.find({}, function(err,classroom){ // {role:'monitor'}
-                var classrooms_list = [];
-                classroom.forEach(function(element){
-                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
-                })
-                //console.log(classrooms_list)      
-                res.render('classrooms', { title: 'Panel de coordinador', 'classrooms_list': classrooms_list});
-            });   
-            
+        if(req.user.role == 'coordinator'){   
+            res.render('c_import_classrooms');  
         }
-        else{ // monitor
+        else{
             res.redirect('/');
         }
     });
 
-    app.get('/excel', function(req, res, next) {
+    app.post('/import-classrooms', upload.single('file'), function(req,res){
         var Parser = require('parse-xl'),
-        school = new Parser('./temp/Escolapios2.xlsx');
+        school = new Parser('./uploads/' + req.file['filename']);
 
         var classrooms_codes = [];
         // TODO: Se simplifica con una hoja para cada clase
@@ -116,6 +118,7 @@ module.exports = function(app, passport){
                 technology_id : 0
             });
 
+
             classroom.save(function(err, saved){
                 if(err){
                     throw err;
@@ -128,6 +131,52 @@ module.exports = function(app, passport){
         res.redirect('/classrooms');
     });
 
+    app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
+        if(req.user.role == 'coordinator'){
+            
+            Classrooms.find({}, function(err,classroom){ // {role:'monitor'}
+                var classrooms_list = [];
+                classroom.forEach(function(element){
+                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
+                })
+                //console.log(classrooms_list)      
+                res.render('c_classrooms', { title: 'Panel de coordinador', 'classrooms_list': classrooms_list});
+            });   
+            
+        }
+        else{ // monitor
+            Classrooms.find({'monitors' : req.user._id}, function(err,classroom){
+                var classrooms_list = [];
+                classroom.forEach(function(element){
+                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
+                })
+                res.render('m_classrooms', { 'classrooms_list': classrooms_list});
+            });
+            
+        }
+    });
+
+
+    app.get('/asignar', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+        var code_name = 'esc1';
+        var username = 'ImanolLlano';
+        if(req.user.role == 'coordinator'){
+            Classrooms.findOne({'code_name': code_name}, function(err,classroom){ // {role:'monitor'}
+                var monitor_list = classroom['monitors'];
+                Users.findOne({'username': username}, function(err,user){
+                    monitor_list.push(user._id);
+                    Classrooms.update({'code_name': code_name}, { $set: {'monitors' : monitor_list }}, function(err, doc){
+                        //console.log("Actualizado" + err + doc);
+                    });
+                });
+            });
+            res.redirect('/');
+        }
+        else{ // monitor
+            res.redirect('/');
+        }
+    });
     var mail = require('../app/mailer');
 
     app.post('/add-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
@@ -164,7 +213,7 @@ module.exports = function(app, passport){
                         throw err;
                         console.log(err);
                     }else{
-                        res.send({redirect: '/dashboard'});
+                        res.send({redirect: '/monitors'});
                     }
                 });
             });
