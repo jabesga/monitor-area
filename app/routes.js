@@ -160,7 +160,7 @@ module.exports = function(app, passport){
 
     app.get('/asignar', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         var code_name = 'esc1';
-        var username = 'ImanolLlano';
+        var username = 'AlbertoX';
         if(req.user.role == 'coordinator'){
             Classrooms.findOne({'code_name': code_name}, function(err,classroom){ // {role:'monitor'}
                 var monitor_list = classroom['monitors'];
