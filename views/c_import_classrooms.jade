@@ -31,15 +31,21 @@ html
                         li
                             a(href='/') Inicio
                             span.sr-only (current)
-                        li.active
-                            a(href='/import-classrooms') Importar clases
+                    ul.nav.nav-sidebar
                         li
-                            a(href='/monitors') Monitores
+                            a(href='/import-monitors') Importar monitores
+                        li.active             
+                            a(href='/import-classrooms') Importar clases
+                    ul.nav.nav-sidebar
+                        li
+                            a(href='/monitors') Lista de Monitores
+                        li
+                            a(href='/classrooms') Lista de Clases y colegios
+                    ul.nav.nav-sidebar                                                    
                         li
                             a(href='/technologies') Tecnologias
-                        li
-                            a(href='/classrooms') Clases               
+
                 div.col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
                     form(id="uploadForm" enctype="multipart/form-data" action="import-classrooms" method="post")
                         input(type="file" name="file")
-                        input(type="submit" value="Import file" name="Submit")
+                        input(type="submit" value="Importar clases" name="Submit")

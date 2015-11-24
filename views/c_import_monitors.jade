@@ -23,8 +23,6 @@ html
                 div.navbar-collapse.collapse(id='navbar' aria-expanded='false' style='height=1px;')
                     ul.nav.navbar-nav.navbar-right
                         li
-                            a(href='#') Mi perfil
-                        li
                             a(href='/logout') Logout
         div.container-fluid
             div.row
@@ -34,45 +32,20 @@ html
                             a(href='/') Inicio
                             span.sr-only (current)
                     ul.nav.nav-sidebar
-                        li
+                        li.active
                             a(href='/import-monitors') Importar monitores
                         li                        
                             a(href='/import-classrooms') Importar clases
                     ul.nav.nav-sidebar
                         li
                             a(href='/monitors') Lista de Monitores
-                        li.active
+                        li
                             a(href='/classrooms') Lista de Clases y colegios
                     ul.nav.nav-sidebar                                                    
                         li
                             a(href='/technologies') Tecnologias
 
                 div.col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
-                    h1.page-header Panel de coordinador
-                    h2.sub-header Todas los colegios
-                    each school in school_list
-                        h3.sub-header #{school.school_name}
-                        button(type="button" class="btn btn-info" data-toggle="collapse" data-target="##{school.school_name}") Ver clases
-                        div.collapse(id="#{school.school_name}")
-                            each element in school.school_classrooms
-                                h4.sub-header #{element.code_name}
-                                button(type="button" class="btn btn-info" data-toggle="collapse" data-target="##{element.code_name}") Mostrar lista
-                                
-                                div.table-responsive.collapse(id="#{element.code_name}")
-                                    table.table.table-striped
-                                        thead
-                                            tr
-                                                th Nombre
-                                                th Apellido 1
-                                                th Apellido 2
-                                                th Edad
-                                        tbody
-                                            each student in element.students
-                                                tr
-                                                    td #{student.nombre}
-                                                    td #{student.apellido1}
-                                                    td #{student.apellido2} 
-                                                    td #{student.edad}                                             
-
-        script(src="/javascripts/jquery.min.js")
-        script(src="/javascripts/bootstrap.min.js")
+                    form(id="uploadForm" enctype="multipart/form-data" action="import-monitors" method="post")
+                        input(type="file" name="file")
+                        input(type="submit" value="Importar monitores" name="Submit")

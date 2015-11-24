@@ -1,5 +1,5 @@
 var Users = require('../app/models/user');
-var Classrooms = require('../app/models/classroom');
+var Schools = require('../app/models/school');
 
 var multer = require('multer');
 
@@ -8,7 +8,7 @@ var storage = multer.diskStorage({
     cb(null, './uploads/')
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now())
+    cb(null, file.originalname)
   }
 });
 
@@ -76,30 +76,18 @@ module.exports = function(app, passport){
       
     });
 
-
     app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
         if(req.user.role == 'coordinator'){
-            
-            Classrooms.find({}, function(err,classroom){ // {role:'monitor'}
-                var classrooms_list = [];
-                classroom.forEach(function(element){
-                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
+
+            Schools.find({}, function(err,school){
+                var school_list = [];
+                school.forEach(function(element){
+                    school_list.push({'school_name': element['school_name'], 'school_classrooms': element['school_classrooms']});
                 })
-                //console.log(classrooms_list)      
-                res.render('c_classrooms', { title: 'Panel de coordinador', 'classrooms_list': classrooms_list});
-            });   
-            
-        }
-        else{ // monitor
-            Classrooms.find({'monitors' : req.user._id}, function(err,classroom){
-                var classrooms_list = [];
-                classroom.forEach(function(element){
-                    classrooms_list.push({'code_name': element['code_name'], 'students': element['students']});
-                })
-                res.render('m_classrooms', { 'classrooms_list': classrooms_list});
+
+                res.render('c_classrooms', { 'school_list': school_list});
             });
-            
         }
     });
 
@@ -113,48 +101,93 @@ module.exports = function(app, passport){
         }
     });
 
+    app.get('/import-monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
+        if(req.user.role == 'coordinator'){   
+            res.render('c_import_monitors');  
+        }
+        else{
+            res.redirect('/');
+        }
+    });
+
+    app.post('/import-monitors', upload.single('file'), function(req, res){
+        var Parser = require('parse-xl');
+        monitors = new Parser('./uploads/' + req.file['filename']);
+
+        monitors['data']['Sheet1'].filter(function(monitor){ // Clases del colegio
+            if(monitor['MoniEstado'] == 'A'){
+                var monitor = new Users({
+                    _id : monitor['IdMonitor'],
+                    username: monitor['Email_Monitor'],
+                    password: 123456, // TODO: Hashear contrasenia
+                    name : monitor['MoniNomb'],
+                    surname : monitor['MoniApe'],
+                    email : monitor['Email_Monitor'],
+                    role : 'monitor'
+                });
+
+                monitor.save(function(err, saved){
+                    if(err){
+                        throw err;
+                        console.log(err);
+                    }else{
+                    }
+                }); 
+            } 
+        });                         
+
+        res.redirect('/monitors');        
+    });
+
     app.post('/import-classrooms', upload.single('file'), function(req,res){
-        var Parser = require('parse-xl'),
+        var Parser = require('parse-xl');
         school = new Parser('./uploads/' + req.file['filename']);
 
-        var classrooms_codes = [];
-        // TODO: Se simplifica con una hoja para cada clase
-        school['data']['ListaClases'].filter(function(element){
-            classrooms_codes.push(element['CODIGO']);
-        });
+        var d = new Date();
+        var n = d.getFullYear();
 
-
-        classrooms_codes.forEach(function(code,index){
-            classroom_list_by_code = [];
-            school['data']['Hoja1'].filter(function(element){
-                if (element['Grupo'] == code){
-                    classroom_list_by_code.push({
-                        'nombre': element['Nombre'],
-                        'apellido': element['Apellido 1']
+        var SCHOOL_NAME = req.file['filename'].split(".")[0]; // Nombre colegio
+        var CLASSROOM_LIST = [];
+        school['data']['ListaClases'].filter(function(classroom){ // Clases del colegio
+            var student_list = [];
+            school['data']['Hoja1'].filter(function(student){ // Estudiantes de esa clase
+                if (student['Grupo'] == classroom['Codigo']){
+                    student_list.push({
+                        'nombre': student['Nombre'],
+                        'apellido1': student['Apellido 1'],
+                        'apellido2': student['Apellido 2'],                        
+                        'edad': n-parseInt(student['Año de Nacimiento'])
                     });
                 }
             });
 
-            //console.log(classroom);
-            var classroom = new Classrooms({
-                code_name: code,
-                school_name: '',
-                schedule : '',
+            classrooms = { // Crear la clase
+                code_name: classroom['Codigo'],
+                schedule : classroom['Horario'],
                 monitors : [],
-                students : classroom_list_by_code,
+                students : student_list,
                 technology_id : 0
-            });
-
-
-            classroom.save(function(err, saved){
-                if(err){
-                    throw err;
-                    console.log(err);
-                }else{
-                    console.log("Clase guardada con codigo: " + code);
-                }
-            });          
+            }
+            CLASSROOM_LIST.push(classrooms);
         });
+
+        var new_school = new Schools({
+            school_name: SCHOOL_NAME,
+            school_classrooms : CLASSROOM_LIST
+        });
+
+        //console.log(classroom);
+
+        new_school.save(function(err, saved){
+            if(err){
+                throw err;
+                console.log(err);
+            }else{
+                //console.log("Clase guardada con codigo: " + classroom['Codigo']);
+            }
+        });                          
+
         res.redirect('/classrooms');
     });
 
@@ -199,6 +232,7 @@ module.exports = function(app, passport){
                         'text': 'Su nombre de usuario es ' + req.body['name'] + req.body['surname'] + ' y su contraseña es 123456',
                         'html': 'Su nombre de usuario es ' + req.body['name'] + req.body['surname'] + ' y su contraseña es 123456'
                     }
+                    /*
                     mail.sendMail(options, function(response){
                         if(response == 'sent'){
                             console.log("Mail sent: " + response)
@@ -207,7 +241,7 @@ module.exports = function(app, passport){
                             console.log("Error: " +response)
                         }
                         
-                    })                    
+                    })   */                 
                 }
                 monitor.save(function(err, saved){
                     if(err){
