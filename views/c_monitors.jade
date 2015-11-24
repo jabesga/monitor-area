@@ -9,8 +9,6 @@ html
             body{
                 overflow-x: hidden;
             }
-            .delete-monitor { opacity:0; float:right }
-            table tr:hover .delete-monitor { opacity:1 }
     body
         nav.navbar.navbar-inverse.navbar-fixed-top
             div.container-fluid
@@ -21,6 +19,7 @@ html
                         span.icon-bar
                         span.icon-bar
                     a.navbar-brand(href='#') Camptecnologico
+                    
                 div.navbar-collapse.collapse(id='navbar' aria-expanded='false' style='height=1px;')
                     ul.nav.navbar-nav.navbar-right
                         li
@@ -49,8 +48,7 @@ html
                             a(href='/technologies') Tecnologias
                             
                 div.col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
-                    h1.page-header= title
-                    h2.sub-header Monitores
+                    h1.page-header Lista de Monitores
      
                     div.table-responsive
                         table.table.table-striped
@@ -61,113 +59,17 @@ html
                                     th Nombre
                                     th Apellido
                                     th Email
-                                    th
                             tbody
-                                each monitor in monitors
+                                each monitor in list_of_monitors
                                     tr
                                         td #{monitor._id}
                                         td #{monitor.username}
                                         td #{monitor.name}
                                         td #{monitor.surname}
                                         td #{monitor.email}
-                                        td
-                                            button(class="delete-monitor" id="#{monitor._id}" type="button" class="close" data-toggle="modal" data-target="#removeMonitor") &times;
 
-                    if message                                     
-                        div(class="alert alert-success alert-dismissible" role="alert") #{message}
-                            button(type="button" class="close" data-dismiss="alert") &times;
-                    button.btn-default.btn.pull-right(data-toggle="modal" data-target="#addMonitor") Añadir monitor
 
-                    div.modal.fade#addMonitor(role="dialog" aria-labelledby="basicModal" aria-hidden="true")
-                        div.modal-dialog
-                            div.modal-content
-                                div.modal-header
-                                    button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times;
-                                    h4.modal-title Añadir monitor
-                                div.modal-body
-                                    form.form-horizontal(action="#" method="post" id="monitor")
-                                        div.form-group
-                                            label(for="inputUsername" class="sr-only") Name
-                                            input(type="text" id="inputUsername" class="form-control" name="name" placeholder="Nombre" required autofocus)
-                                        div.form-group
-                                            label(for="inputUsername" class="sr-only") Name
-                                            input(type="text" class="form-control" name="surname" placeholder="Apellido" required)
-                                        div.form-group
-                                            label(for="inputUsername" class="sr-only") Email
-                                            input(type="email" class="form-control" name="email" placeholder="email" required)
-                                        div.checkbox
-                                            label
-                                                input(type="checkbox" name='notify' checked value='true')
-                                div.modal-footer
-                                    span.pull-left#status
-                                    button(type="button" class="btn btn-default" data-dismiss="modal") Close                                            
-                                    input(type="submit" class="add-monitor btn btn-primary" value="Save changes" id="submit")  
 
-                    div.modal.fade#removeMonitor(role="dialog" aria-labelledby="basicModal" aria-hidden="true")
-                        div.modal-dialog
-                            div.modal-content
-                                div.modal-header
-                                    button(type="button" class="close" data-dismiss="modal" aria-hidden="true") &times;
-                                    h4.modal-title Eliminar monitor
-                                div.modal-body
-                                    p ¿Seguro que desea eliminar a este monitor?
-                                div.modal-footer
-                                    span.pull-left#status
-                                    button(type="button" class="btn btn-default" data-dismiss="modal") Close                                            
-                                    input(type="submit" class="remove-monitor btn btn-primary" value="Eliminar monitor" id="submit")  
+                    
         script(src="/javascripts/jquery.min.js")
         script(src="/javascripts/bootstrap.min.js")
-        script(src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.js")
-        script.
-            $(document).ready(function () {
-                $('#addMonitor').on('shown.bs.modal', function () {
-                    $("#status").html("");
-                    $('#inputUsername').focus();
-                });
-
-                var removeMonitor_id;
-                $("button.delete-monitor").click(function() {
-                    removeMonitor_id = this.id;
-                });
-
-                $("input.add-monitor#submit").click(function(){
-                    var valid = $("form#monitor").validate().form();
-                    if(valid === true){
-                        $.ajax({
-                            type: "POST",
-                                url: "/add-monitor",
-                                data: $('form#monitor').serialize(),
-                            success: function(data){
-                                $("#status").html("Cambios realizados");
-                                $("#addMonitor").modal('hide');
-                                if(typeof data.redirect == 'string'){
-                                    window.location = data.redirect;
-                                }
-                            },
-                            error: function(){
-                                console.log("Fallo");
-                            }
-                        });                    
-                    }
-
-
-                });
-                $("input.remove-monitor#submit").click(function(){
-                    $.ajax({
-                        type: "POST",
-                            url: "/remove-monitor",
-                            data: {data: removeMonitor_id},
-                        success: function(data){
-                            console.log("Acierto");
-                            if(typeof data.redirect == 'string'){
-                                window.location = data.redirect;
-                            }
-                        },
-                        error: function(){
-                            console.log("Fallo");
-                        }
-                    });
-                });
-            });
-
-<!-- TODO: Al hacer ESC el modal se cierra. Al hacerlo dos veces no -->

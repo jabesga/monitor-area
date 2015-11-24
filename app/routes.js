@@ -64,29 +64,38 @@ module.exports = function(app, passport){
 
     app.get('/monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role == 'coordinator'){
-            Users.find({}, function(err,users){ // {role:'monitor'}
-                var user_list = [];
-                users.forEach(function(user){
-                    user_list.push({'_id': user._id, 'username': user.username, 'name': user.name, 'surname': user.surname, 'email': user.email});
+            Users.find({'role': 'monitor'}, null, {sort: {'_id': 1}}, function(err,all_users){
+                var list = [];
+                all_users.forEach(function(user){
+                    list.push({
+                        '_id': user._id,
+                        'username': user.username,
+                        'name': user.name,
+                        'surname': user.surname,
+                        'email': user.email
+                    });
                 });
-                
-                res.render('c_monitors', { title: 'Panel de coordinador', 'monitors': user_list });
+                //console.log(list);
+                res.render('c_monitors', { 'list_of_monitors': list });
             });
         }
       
     });
 
-    app.get('/classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+    app.get('/classrooms', isLoggedIn, function(req, res, next) {
 
         if(req.user.role == 'coordinator'){
 
-            Schools.find({}, function(err,school){
-                var school_list = [];
-                school.forEach(function(element){
-                    school_list.push({'school_name': element['school_name'], 'school_classrooms': element['school_classrooms']});
+            Schools.find({}, function(err,all_schools){
+                var list = [];
+                all_schools.forEach(function(school){
+                    list.push({
+                        'school_name': school['school_name'],
+                        'school_classrooms': school['school_classrooms']
+                    });
                 })
 
-                res.render('c_classrooms', { 'school_list': school_list});
+                res.render('c_classrooms', { 'list_of_schools': list});
             });
         }
     });
@@ -113,11 +122,12 @@ module.exports = function(app, passport){
 
     app.post('/import-monitors', upload.single('file'), function(req, res){
         var Parser = require('parse-xl');
-        monitors = new Parser('./uploads/' + req.file['filename']);
+        spreadsheet_of_monitors = new Parser('./uploads/' + req.file['filename']);
 
-        monitors['data']['Sheet1'].filter(function(monitor){ // Clases del colegio
-            if(monitor['MoniEstado'] == 'A'){
-                var monitor = new Users({
+        spreadsheet_of_monitors['data']['Sheet1'].filter(function(monitor){ // Clases del colegio
+            //if(monitor['MoniEstado'] == 'A'){
+                console.log(monitor['IdMonitor']);
+                var new_monitor = new Users({
                     _id : monitor['IdMonitor'],
                     username: monitor['Email_Monitor'],
                     password: 123456, // TODO: Hashear contrasenia
@@ -127,14 +137,13 @@ module.exports = function(app, passport){
                     role : 'monitor'
                 });
 
-                monitor.save(function(err, saved){
+                new_monitor.save(function(err, saved){
                     if(err){
                         throw err;
                         console.log(err);
-                    }else{
                     }
                 }); 
-            } 
+            //} 
         });                         
 
         res.redirect('/monitors');        
@@ -142,17 +151,19 @@ module.exports = function(app, passport){
 
     app.post('/import-classrooms', upload.single('file'), function(req,res){
         var Parser = require('parse-xl');
-        school = new Parser('./uploads/' + req.file['filename']);
+        spreadsheet_of_school = new Parser('./uploads/' + req.file['filename']);
 
         var d = new Date();
         var n = d.getFullYear();
 
         var SCHOOL_NAME = req.file['filename'].split(".")[0]; // Nombre colegio
-        var CLASSROOM_LIST = [];
-        school['data']['ListaClases'].filter(function(classroom){ // Clases del colegio
+        var GROUPS_LIST = [];
+
+        spreadsheet_of_school['data']['ListaClases'].filter(function(group){ // Clases del colegio
             var student_list = [];
-            school['data']['Hoja1'].filter(function(student){ // Estudiantes de esa clase
-                if (student['Grupo'] == classroom['Codigo']){
+
+            spreadsheet_of_school['data']['Hoja1'].filter(function(student){ // Estudiantes de esa clase
+                if (student['Grupo'] == group['Codigo']){
                     student_list.push({
                         'nombre': student['Nombre'],
                         'apellido1': student['Apellido 1'],
@@ -162,35 +173,33 @@ module.exports = function(app, passport){
                 }
             });
 
-            classrooms = { // Crear la clase
-                code_name: classroom['Codigo'],
-                schedule : classroom['Horario'],
+            var new_group = {
+                code_name: group['Codigo'],
+                schedule : group['Horario'],
                 monitors : [],
                 students : student_list,
                 technology_id : 0
             }
-            CLASSROOM_LIST.push(classrooms);
+
+            GROUPS_LIST.push(new_group);
         });
 
         var new_school = new Schools({
             school_name: SCHOOL_NAME,
-            school_classrooms : CLASSROOM_LIST
+            school_classrooms : GROUPS_LIST
         });
 
-        //console.log(classroom);
 
         new_school.save(function(err, saved){
             if(err){
                 throw err;
                 console.log(err);
-            }else{
-                //console.log("Clase guardada con codigo: " + classroom['Codigo']);
             }
         });                          
 
         res.redirect('/classrooms');
     });
-
+    /*
     app.get('/asignar', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         var code_name = 'esc1';
         var username = 'AlbertoX';
@@ -210,64 +219,7 @@ module.exports = function(app, passport){
             res.redirect('/');
         }
     });
-
-    var mail = require('../app/mailer');
-
-    app.post('/add-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
-        if(req.user.role == 'coordinator'){
-            Users.findOne({}, {}, { sort: { '_id' : -1 } }, function(err,user){
-                var monitor = new Users({
-                    _id : user._id+1,
-                    username: (req.body['name'] + req.body['surname']).toLowerCase(),
-                    password: 123456, // TODO: Hashear contrasenia
-                    name : req.body['name'],
-                    surname : req.body['surname'],
-                    email : req.body['email'],
-                    role : 'monitor'
-                });
-                
-                if(req.body['notify'] == 'true'){
-                    options = {
-                        'to': req.body['email'],
-                        'text': 'Su nombre de usuario es ' + req.body['name'] + req.body['surname'] + ' y su contraseña es 123456',
-                        'html': 'Su nombre de usuario es ' + req.body['name'] + req.body['surname'] + ' y su contraseña es 123456'
-                    }
-                    /*
-                    mail.sendMail(options, function(response){
-                        if(response == 'sent'){
-                            console.log("Mail sent: " + response)
-                        }
-                        else{
-                            console.log("Error: " +response)
-                        }
-                        
-                    })   */                 
-                }
-                monitor.save(function(err, saved){
-                    if(err){
-                        throw err;
-                        console.log(err);
-                    }else{
-                        res.send({redirect: '/monitors'});
-                    }
-                });
-            });
-        }
-    });
-
-    app.post('/remove-monitor', isLoggedIn, function(req, res, next) { // TODO: restringir solo a coordinador
-        if(req.user.role == 'coordinator'){
-            Users.findOneAndRemove({_id: req.body['data']}, function(err, doc, result){
-                if(err){
-                    throw err;
-                    console.log(err);
-                }else{
-                    res.send({redirect: '/dashboard'});
-                }
-            });
-        }
-    });    
-    
+    */
     app.use(function(req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;

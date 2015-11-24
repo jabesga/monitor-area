@@ -48,10 +48,12 @@ html
                             a(href='/technologies') Tecnologias
 
                 div.col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
-                    h1.page-header Panel de coordinador
-                    h2.sub-header Todas los colegios
-                    each school in school_list
-                        h3.sub-header #{school.school_name}
+
+                    h1.page-header Todos los colegios
+
+                    each school in list_of_schools
+                        h2.sub-header #{school.school_name}
+                        
                         button(type="button" class="btn btn-info" data-toggle="collapse" data-target="##{school.school_name}") Ver clases
                         div.collapse(id="#{school.school_name}")
                             each element in school.school_classrooms
