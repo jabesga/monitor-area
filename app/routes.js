@@ -91,6 +91,7 @@ module.exports = function(app, passport){
                 all_schools.forEach(function(school){
                     list.push({
                         'school_name': school['school_name'],
+                        'target': school['school_name'].replace(/\s+/g,""),
                         'school_classrooms': school['school_classrooms']
                     });
                 })
@@ -148,7 +149,105 @@ module.exports = function(app, passport){
 
         res.redirect('/monitors');        
     });
+    
+    app.post('/import-classrooms', upload.single('file'), function(req,res){
+        var Parser = require('parse-xl');
+        spreadsheet_of_school = new Parser('./uploads/' + req.file['filename']);
 
+        var d = new Date();
+        var n = d.getFullYear();
+
+        all_schools = [];
+        for (var i = 0; i < spreadsheet_of_school['data']['Sheet1'].length; i++) {
+            var row = spreadsheet_of_school['data']['Sheet1'][i];
+            if(all_schools.indexOf(row['Colegio']) == -1){
+                all_schools.push(row['Colegio']);
+            }  
+        }
+
+        all_schools.filter(function(name){
+            var new_school = new Schools({
+                school_name: name,
+                school_classrooms : []
+            });
+            new_school.save(function(err, saved){
+                if(err){
+                    throw err;
+                    console.log(err);
+                }
+            });
+        });
+
+        all_schools.filter(function(name){
+            Schools.findOne({'school_name': name}, function(err,school){
+                all_groups = []
+                for (var i = 0; i < spreadsheet_of_school['data']['Sheet1'].length; i++) {
+                    var row = spreadsheet_of_school['data']['Sheet1'][i];
+                    if(row['Colegio'] == name){
+                        var new_group = {
+                            code_name: row['Codigo'],
+                            day : row['Dia'],
+                            hour : row['Hora'],
+                            monitors : row['Monitores'],
+                            students : [], // Student_list TODO
+                            //technology_id : 0
+                        }
+                        all_groups.push(new_group);  
+                    }
+                    
+                }
+                
+                /*if(row['Monitores'] != undefined){
+                    new_group['monitors'] = row['Monitores'];
+                }*/
+                
+                Schools.update({'school_name': name}, { $set: {'school_classrooms' : all_groups }}, function(err, doc){
+                    //console.log("Añadido grupo" + err + doc);
+                });
+            });
+        });    
+
+        // spreadsheet_of_school['data']['ListaClases'].filter(function(group){ // Clases del colegio
+        //     var student_list = [];
+
+        //     spreadsheet_of_school['data']['Hoja1'].filter(function(student){ // Estudiantes de esa clase
+        //         if (student['Grupo'] == group['Codigo']){
+        //             student_list.push({
+        //                 'nombre': student['Nombre'],
+        //                 'apellido1': student['Apellido 1'],
+        //                 'apellido2': student['Apellido 2'],                        
+        //                 'edad': n-parseInt(student['Año de Nacimiento'])
+        //             });
+        //         }
+        //     });
+
+        //     var new_group = {
+        //         code_name: group['Codigo'],
+        //         schedule : group['Horario'],
+        //         monitors : [],
+        //         students : student_list,
+        //         technology_id : 0
+        //     }
+
+        //     GROUPS_LIST.push(new_group);
+        // });
+
+        // var new_school = new Schools({
+        //     school_name: SCHOOL_NAME,
+        //     school_classrooms : GROUPS_LIST
+        // });
+
+
+        // new_school.save(function(err, saved){
+        //     if(err){
+        //         throw err;
+        //         console.log(err);
+        //     }
+        // });                          
+
+        res.redirect('/classrooms');
+    });
+    /*
     app.post('/import-classrooms', upload.single('file'), function(req,res){
         var Parser = require('parse-xl');
         spreadsheet_of_school = new Parser('./uploads/' + req.file['filename']);
@@ -198,7 +297,7 @@ module.exports = function(app, passport){
         });                          
 
         res.redirect('/classrooms');
-    });
+    });*/
     /*
     app.get('/asignar', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         var code_name = 'esc1';

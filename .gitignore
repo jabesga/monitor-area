@@ -28,6 +28,8 @@ build/Release
 node_modules
 
 uploads/*
+!uploads/JUST_A_FILE
+
 # Ignore temp directory with settings
 temp/*
 # But not these files
