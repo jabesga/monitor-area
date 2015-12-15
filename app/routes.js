@@ -205,120 +205,66 @@ module.exports = function(app, passport){
                     //console.log("Añadido grupo" + err + doc);
                 });
             });
-        });    
-
-        // spreadsheet_of_school['data']['ListaClases'].filter(function(group){ // Clases del colegio
-        //     var student_list = [];
-
-        //     spreadsheet_of_school['data']['Hoja1'].filter(function(student){ // Estudiantes de esa clase
-        //         if (student['Grupo'] == group['Codigo']){
-        //             student_list.push({
-        //                 'nombre': student['Nombre'],
-        //                 'apellido1': student['Apellido 1'],
-        //                 'apellido2': student['Apellido 2'],                        
-        //                 'edad': n-parseInt(student['Año de Nacimiento'])
-        //             });
-        //         }
-        //     });
-
-        //     var new_group = {
-        //         code_name: group['Codigo'],
-        //         schedule : group['Horario'],
-        //         monitors : [],
-        //         students : student_list,
-        //         technology_id : 0
-        //     }
-
-        //     GROUPS_LIST.push(new_group);
-        // });
-
-        // var new_school = new Schools({
-        //     school_name: SCHOOL_NAME,
-        //     school_classrooms : GROUPS_LIST
-        // });
-
-
-        // new_school.save(function(err, saved){
-        //     if(err){
-        //         throw err;
-        //         console.log(err);
-        //     }
-        // });                          
+        });            
 
         res.redirect('/classrooms');
     });
-    /*
-    app.post('/import-classrooms', upload.single('file'), function(req,res){
+
+    app.get('/import-students', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
+        if(req.user.role == 'coordinator'){   
+            res.render('c_import_students');  
+        }
+        else{
+            res.redirect('/');
+        }
+    });
+
+
+    app.post('/import-students', upload.single('file'), function(req,res){
+        
         var Parser = require('parse-xl');
-        spreadsheet_of_school = new Parser('./uploads/' + req.file['filename']);
+        spreadsheet_of_students = new Parser('./uploads/' + req.file['filename']);
 
-        var d = new Date();
-        var n = d.getFullYear();
+        Schools.find({}, function(err, all_schools){
+            all_schools.forEach(function(school){
+                
+                if(school['school_name'] in spreadsheet_of_students['data']){
+                    //console.log(spreadsheet_of_students['data'][school['school_name']]);
+                    student_list = []
+                    spreadsheet_of_students['data'][school['school_name']].forEach(function(row){
+                        student_list.push({
+                            'nombre': row['Nombre'],
+                            'apellido1': row['Apellido1'],
+                            'apellido2': row['Apellido2'],
+                            'grupo': row['Grupo'],
+                        })
+                    });
 
-        var SCHOOL_NAME = req.file['filename'].split(".")[0]; // Nombre colegio
-        var GROUPS_LIST = [];
+                    school['school_classrooms'].forEach(function(classroom){
+                        classroom['students'] = [];
+                        student_list.forEach(function(student){
+                            if(student['grupo'] == classroom['code_name']){
+                                classroom['students'].push({
+                                    'nombre': student['nombre'],
+                                    'apellido1': student['apellido1'],
+                                    'apellido2': student['apellido2'],
+                                })
+                            }
+                        });
+                    });
 
-        spreadsheet_of_school['data']['ListaClases'].filter(function(group){ // Clases del colegio
-            var student_list = [];
-
-            spreadsheet_of_school['data']['Hoja1'].filter(function(student){ // Estudiantes de esa clase
-                if (student['Grupo'] == group['Codigo']){
-                    student_list.push({
-                        'nombre': student['Nombre'],
-                        'apellido1': student['Apellido 1'],
-                        'apellido2': student['Apellido 2'],                        
-                        'edad': n-parseInt(student['Año de Nacimiento'])
+                    Schools.update({'school_name': school['school_name']}, { $set: {'school_classrooms' : school['school_classrooms'] }}, function(err, doc){
+                        console.log("Añadido grupo" + err + doc);
                     });
                 }
+
             });
-
-            var new_group = {
-                code_name: group['Codigo'],
-                schedule : group['Horario'],
-                monitors : [],
-                students : student_list,
-                technology_id : 0
-            }
-
-            GROUPS_LIST.push(new_group);
         });
-
-        var new_school = new Schools({
-            school_name: SCHOOL_NAME,
-            school_classrooms : GROUPS_LIST
-        });
-
-
-        new_school.save(function(err, saved){
-            if(err){
-                throw err;
-                console.log(err);
-            }
-        });                          
-
+        
         res.redirect('/classrooms');
-    });*/
-    /*
-    app.get('/asignar', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-        var code_name = 'esc1';
-        var username = 'AlbertoX';
-        if(req.user.role == 'coordinator'){
-            Classrooms.findOne({'code_name': code_name}, function(err,classroom){ // {role:'monitor'}
-                var monitor_list = classroom['monitors'];
-                Users.findOne({'username': username}, function(err,user){
-                    monitor_list.push(user._id);
-                    Classrooms.update({'code_name': code_name}, { $set: {'monitors' : monitor_list }}, function(err, doc){
-                        //console.log("Actualizado" + err + doc);
-                    });
-                });
-            });
-            res.redirect('/');
-        }
-        else{ // monitor
-            res.redirect('/');
-        }
-    });
-    */
+    });    
+    
     app.use(function(req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;
