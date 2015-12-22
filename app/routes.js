@@ -222,10 +222,15 @@ module.exports = function(app, passport){
 
 
     app.post('/import-students', upload.single('file'), function(req,res){
-        
-        var Parser = require('parse-xl');
-        spreadsheet_of_students = new Parser('./uploads/' + req.file['filename']);
+        var XLSX = require('xlsx');
+        var workbook = XLSX.readFile('./uploads/' + req.file['filename']);
+        var first_sheet_name  = workbook.SheetNames[8];
+        var worksheet = workbook.Sheets[first_sheet_name];
+        console.log(worksheet);
+        //var Parser = require('parse-xl');
+        //spreadsheet_of_students = new Parser('./uploads/' + req.file['filename']);
 
+        /*
         Schools.find({}, function(err, all_schools){
             all_schools.forEach(function(school){
                 
@@ -261,7 +266,7 @@ module.exports = function(app, passport){
 
             });
         });
-        
+        */
         res.redirect('/classrooms');
     });    
     
