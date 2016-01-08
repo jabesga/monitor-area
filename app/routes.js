@@ -16,53 +16,58 @@ var upload = multer({ storage: storage });
 
 module.exports = function(app, passport){
 
+    var PAGE_TITLE = "Intranet | CampTecnologico"
+    /*
+        app.get('/previouspage', function(req, res, next){
+            if(req.session.returnTo){
+                res.redirect(req.session.returnTo);
+                delete req.session.returnTo;
+            }
+            else{
+                res.redirect('/')
+            }
+        });
+    */
+
+    // Login middleware
     function isLoggedIn(req, res, next) {
-        if (req.isAuthenticated()){
-            return next();
+        if (req.isAuthenticated()){ // if is authenticated
+            return next(); // proceed
         }
         else{
-            req.session.returnTo = req.path; 
+            // req.session.returnTo = req.path; // save the last page to go back later
             res.redirect('/login');
         }
     }
 
-    app.get('/previouspage', function(req, res, next){
-        if(req.session.returnTo){
-            res.redirect(req.session.returnTo);
-            delete req.session.returnTo;
-        }
-        else{
-            res.redirect('/')
-        }
-    });
-
+    // Login page
     app.get('/login', function(req, res, next){
-        res.render('login', { title: 'Monitor Area', message: req.flash('error') });
+        res.render('login', {'title_page': PAGE_TITLE, message: req.flash('error') });
     });
 
+    // Validate login
     app.post('/login', 
-        passport.authenticate('local', {
-            successRedirect: '/previouspage',
+        passport.authenticate('local', { // passport module
+            successRedirect: '/', // /previouspage',
             failureRedirect: '/login',
             failureFlash: true
         })
     );
 
+    // Validate logout
     app.get('/logout', function(req, res, next){
         req.logOut();
         res.redirect('/');
     });
-
-    app.get('/', isLoggedIn, function(req, res, next) {
-        if(req.user.role == 'coordinator'){
-            res.render('c_dashboard');
-        }
-        else{
-            res.render('m_dashboard');   
-        }
+    
+    // Home page
+    app.get('/', isLoggedIn, function(req, res, next) { // check if it is logged
+        res.render('index', {'title_page': PAGE_TITLE, 'user_role' : req.user.role} ); // pass the user role to identify if the user is a teacher or not
     });
 
-    app.get('/monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+
+
+    app.get('/teachers', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role == 'coordinator'){
             Users.find({'role': 'monitor'}, null, {sort: {'_id': 1}}, function(err,all_users){
                 var list = [];
@@ -76,13 +81,13 @@ module.exports = function(app, passport){
                     });
                 });
                 //console.log(list);
-                res.render('c_monitors', { 'list_of_monitors': list });
+                res.render('teachers', { 'list_of_monitors': list });
             });
         }
       
     });
 
-    app.get('/classrooms', isLoggedIn, function(req, res, next) {
+    app.get('/schools', isLoggedIn, function(req, res, next) {
 
         if(req.user.role == 'coordinator'){
 
@@ -96,7 +101,7 @@ module.exports = function(app, passport){
                     });
                 })
 
-                res.render('c_classrooms', { 'list_of_schools': list});
+                res.render('schools', { 'list_of_schools': list});
             });
         }
     });
@@ -104,7 +109,7 @@ module.exports = function(app, passport){
     app.get('/import-classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
         if(req.user.role == 'coordinator'){   
-            res.render('c_import_classrooms');  
+            res.render('schools');  
         }
         else{
             res.redirect('/');
@@ -114,7 +119,7 @@ module.exports = function(app, passport){
     app.get('/import-monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
         if(req.user.role == 'coordinator'){   
-            res.render('c_import_monitors');  
+            res.render('teachers');  
         }
         else{
             res.redirect('/');
@@ -210,10 +215,10 @@ module.exports = function(app, passport){
         res.redirect('/classrooms');
     });
 
-    app.get('/import-students', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+    app.get('/students', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
         if(req.user.role == 'coordinator'){   
-            res.render('c_import_students');  
+            res.render('students');  
         }
         else{
             res.redirect('/');
@@ -222,15 +227,10 @@ module.exports = function(app, passport){
 
 
     app.post('/import-students', upload.single('file'), function(req,res){
-        var XLSX = require('xlsx');
-        var workbook = XLSX.readFile('./uploads/' + req.file['filename']);
-        var first_sheet_name  = workbook.SheetNames[8];
-        var worksheet = workbook.Sheets[first_sheet_name];
-        console.log(worksheet);
-        //var Parser = require('parse-xl');
-        //spreadsheet_of_students = new Parser('./uploads/' + req.file['filename']);
+        var Parser = require('parse-xl');
+        spreadsheet_of_students = new Parser('./uploads/' + req.file['filename']);
 
-        /*
+        
         Schools.find({}, function(err, all_schools){
             all_schools.forEach(function(school){
                 
@@ -266,7 +266,7 @@ module.exports = function(app, passport){
 
             });
         });
-        */
+        
         res.redirect('/classrooms');
     });    
     
