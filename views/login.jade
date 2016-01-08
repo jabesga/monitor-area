@@ -1,21 +1,56 @@
-doctype html
 html
     head
         title=title_page
         meta(name="viewport" content="width=device-width, initial-scale=1.0")
-        link(rel='stylesheet', href='/stylesheets/login.css')
         link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
-    body
-        div.container
-            form(action="/login" method="post" class="form-signin form-horizontal")
-                h2.form-signin-heading.text-center Area monitores
+        link(rel='stylesheet', href='/login/login.css')
 
-                if message != ""
-                    div(class="alert alert-danger alert-dismissible" role="alert") #{message}
-                div.form-group
-                    label(for="inputUsername" class="sr-only") Username
-                    input(type="text" id="inputUsername" class="form-control" name="username" placeholder="Username" required autofocus)
-                div.form-group
-                    label(for="inputPassword" class="sr-only") Password
-                    input(type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required)
-                input(type="submit" value="Sign in" class="btn btn-lg btn-primary btn-block")
+    body(style="background-color: LightSteelBlue")
+        #login-modal(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true' style="position: fixed;top:50%; left:50%; transform: translate(-50%, -50%);")
+          .modal-dialog
+            .modal-content
+              .modal-header(align='center')
+                img#img_logo.img-circle(src='/images/logo.png')
+              // Begin # DIV Form
+              #div-forms
+                // Begin # Login Form
+                form#login-form(action="/login" method="post")
+                  .modal-body
+                    if message != ""
+                        #div-login-msg.error
+                            #icon-login-msg.glyphicon.glyphicon-remove.error
+                            span#text-login-msg #{message}                       
+                    else
+                        #div-login-msg
+                            #icon-login-msg.glyphicon.glyphicon-chevron-right
+                            span#text-login-msg Accede con tu correo y contraseña.
+                    input#login_username.form-control(type='text', name="username", placeholder='Nombre de usuario', required='')
+                    input#login_password.form-control(type='password', name="password", placeholder='Contraseña', required='')
+                    //
+                        .checkbox
+                          label
+                            input(type='checkbox')
+                            |  Recuérdame
+                  .modal-footer
+                    div
+                      button.btn.btn-primary.btn-lg.btn-block(type='submit') Acceder
+                    div
+                      button#login_lost_btn.btn.btn-link(type='button') Olvidaste tu contraseña?
+                // End # Login Form
+
+                // Begin | Lost Password Form
+                form#lost-form(style='display:none;')
+                  .modal-body
+                    #div-lost-msg
+                      #icon-lost-msg.glyphicon.glyphicon-chevron-right
+                      span#text-lost-msg Escribe tu email.
+                    input#lost_email.form-control(type='text', placeholder='E-Mail', required='')
+                  .modal-footer
+                    div
+                      button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar
+                    div
+                      button#lost_login_btn.btn.btn-link(type='button') Login
+                // End | Lost Password Form
+              // End # DIV Form
+        script(src="https://code.jquery.com/jquery-2.1.4.js" type="text/javascript")
+        script(src="/login/login.js")

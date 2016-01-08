@@ -204,10 +204,10 @@ html
           // /.search form
           // Sidebar Menu
           ul.sidebar-menu
-            if user_role!="coordinator"
+            if user_role!="Coordinator"
               li.header MENÚ DE PROFESOR
               // Optionally, you can add icons to the links
-              li.active
+              li
                 a(href='#')
                   i.fa.fa-home
                   span Inicio
@@ -243,11 +243,11 @@ html
             else
               li.header MENÚ DE COORDINADOR
               li.active
-                a(href='#')
+                a(href='/')
                   i.fa.fa-home
                   span Inicio
-              li
-                a(href='/users')
+              li.active
+                a(href='#')
                   i.fa.fa-users
                   span Usuarios
               li                
@@ -291,19 +291,65 @@ html
         // Main content
         section.content
           .row
-            .col-lg-3.col-xs-6
-              // small box
-              .small-box.bg-aqua
-                .inner
-                  h3 #{teachers_count}
-                  p Profesores
-                .icon
-                  i.ion.ion-person-stalker
-                a.small-box-footer(href='/users')
-                  | Mas información 
-                  i.fa.fa-arrow-circle-right
-            // ./col
-            
+            .col-xs-12
+              .box
+                .box-header
+                  h3.box-title Profesores
+                // /.box-header
+                .box-body.table-responsive.no-padding
+                  table.table.table-hover
+                    tbody
+                      tr
+                        th ID
+                        th Nombre y apellidos
+                        th E-Mail
+                      each teacher in teachers_list
+                        tr
+                          td #{teacher._id}
+                          td #{teacher.name}
+                          td #{teacher.email}
+                // /.box-body
+              // /.box
+              if user_added == 1
+                .alert.alert-success.alert-dismissible
+                  button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+                  h4
+                    i.icon.fa.fa-check
+                    |  Usuario añadido con exito!
+                  //| Success alert preview. This alert is dismissable.
+              if user_added == 0
+                .alert.alert-danger.alert-dismissible
+                  button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+                  h4
+                    i.icon.fa.fa-ban
+                    | Hubo un problema añadiendo al usuario. Contacta con el administrador del sitio.
+
+
+              .box.box-info
+                .box-header.with-border
+                  h3.box-title Añadir profesor
+                // /.box-header
+                // form start
+                form.form-horizontal(action="users" method="post")
+                  .box-body
+                    .form-group
+                      label.col-sm-2.control-label(for='inputEmail3') Nombre y apellidos
+                      .col-sm-7
+                        input#inputEmail3.form-control(required name="fullname" type='text', placeholder='Nombre completo')
+                    .form-group
+                      label.col-sm-2.control-label(for='inputEmail3') E-Mail
+                      .col-sm-7
+                        input#inputEmail3.form-control(required name="email" type='email', placeholder='Email')                          
+                    .form-group
+                      label.col-sm-2.control-label(for='inputPassword3') Password
+                      .col-sm-7
+                        input#inputPassword3.form-control(required name="password" type='password', placeholder='Password')
+
+                  // /.box-body
+                  .box-footer
+                    button.btn.btn-info.pull-right(type='submit') Añadir profesor
+                  // /.box-footer
+
           // Your Page Content Here
         // /.content
       // /.content-wrapper
@@ -314,7 +360,7 @@ html
           | Scientia potentia est
         // Default to the left
         strong
-          | Copyright © 2015
+          | Copyright © 2015 
           a(href='http://camptecnologico.com/') CampTecnologico
           | .
         |  All rights reserved.

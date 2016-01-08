@@ -17,6 +17,7 @@ var upload = multer({ storage: storage });
 module.exports = function(app, passport){
 
     var PAGE_TITLE = "Intranet | CampTecnologico"
+    var coordinator_name_name = "Coordinador"
     /*
         app.get('/previouspage', function(req, res, next){
             if(req.session.returnTo){
@@ -62,13 +63,83 @@ module.exports = function(app, passport){
     
     // Home page
     app.get('/', isLoggedIn, function(req, res, next) { // check if it is logged
-        res.render('index', {'title_page': PAGE_TITLE, 'user_role' : req.user.role} ); // pass the user role to identify if the user is a teacher or not
+        Users.count({'role': 'teacher'}, function(err, count){
+            user_data = {
+                'title_page': PAGE_TITLE,
+                'user_name': req.user.name,
+                'user_image': '/images/logo.png',
+                'user_role': req.user.role,
+                'teachers_count': count
+            }
+            
+            res.render('index', user_data); // pass the user role to identify if the user is a teacher or not
+        });
+        
+    });
+
+    // Users
+    app.get('/users', isLoggedIn, function(req, res, next) { // check if it is logged
+        if(req.user.role == coordinator_name){
+            Users.find({'role': 'teacher'}, null, {sort: {'_id': 1}}, function(err, all_teachers){
+
+                var list = [];
+
+                all_teachers.forEach(function(user){
+                    list.push({
+                        '_id': user._id,
+                        'name': user.name,
+                        'email': user.email,
+                    });
+                });
+
+                user_data = {
+                    'title_page': PAGE_TITLE,
+                    'user_name': req.user.username,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'user_added' : req.query.added,
+                    'teachers_list' : list
+                }
+
+                res.render('users', user_data); // pass the user role to identify if the user is a teacher or not
+            });
+        }
+    });
+
+    // Add teachers
+    app.post('/users', isLoggedIn, function(req, res, next) { // check if it is logged
+        if(req.user.role == coordinator_name){
+
+            user_data = {
+                'title_page': PAGE_TITLE,
+                'user_name': req.user.name,
+                'user_image': '/images/logo.png',
+                'user_role': req.user.role
+            }
+            var teacher = new Users({
+                name: req.body['fullname'],
+                password: req.body['password'], // @TODO: Hashear contrasenia
+                email : req.body['email'],
+                role : 'Monitor'
+            });
+
+            teacher.save(function(err, saved){
+                if(err){
+                    throw err;
+                    console.log(err);
+                    res.redirect("/users?added=0");
+                }
+                else{
+                    res.redirect("/users?added=1");
+                }
+            });
+        }
     });
 
 
 
     app.get('/teachers', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-        if(req.user.role == 'coordinator'){
+        if(req.user.role == coordinator_name){
             Users.find({'role': 'monitor'}, null, {sort: {'_id': 1}}, function(err,all_users){
                 var list = [];
                 all_users.forEach(function(user){
@@ -89,7 +160,7 @@ module.exports = function(app, passport){
 
     app.get('/schools', isLoggedIn, function(req, res, next) {
 
-        if(req.user.role == 'coordinator'){
+        if(req.user.role == coordinator_name){
 
             Schools.find({}, function(err,all_schools){
                 var list = [];
@@ -108,7 +179,7 @@ module.exports = function(app, passport){
 
     app.get('/import-classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
-        if(req.user.role == 'coordinator'){   
+        if(req.user.role == coordinator_name){   
             res.render('schools');  
         }
         else{
@@ -118,7 +189,7 @@ module.exports = function(app, passport){
 
     app.get('/import-monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
-        if(req.user.role == 'coordinator'){   
+        if(req.user.role == coordinator_name){   
             res.render('teachers');  
         }
         else{
@@ -217,7 +288,7 @@ module.exports = function(app, passport){
 
     app.get('/students', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
-        if(req.user.role == 'coordinator'){   
+        if(req.user.role == coordinator_name){   
             res.render('students');  
         }
         else{
