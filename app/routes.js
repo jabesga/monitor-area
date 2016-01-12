@@ -1,18 +1,17 @@
-var Users = require('../app/models/user');
 var Activities = require('../app/models/activity');
 var Students = require('../app/models/student')
+var Users = require('../app/models/user');
 
+// File upload system
 var multer = require('multer');
-
 var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './uploads/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname)
-  }
+    destination: function (req, file, cb) {
+        cb(null, './uploads/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
 });
-
 var upload = multer({ storage: storage });
 
 module.exports = function(app, passport){
@@ -20,6 +19,7 @@ module.exports = function(app, passport){
     var PAGE_TITLE = "Intranet | CampTecnologico";
     var TEACHER_TITLE = "Profesor";
     var coordinator_name = "coordinator";
+
     /*
         app.get('/previouspage', function(req, res, next){
             if(req.session.returnTo){
@@ -45,6 +45,7 @@ module.exports = function(app, passport){
 
     // Login page
     app.get('/login', function(req, res, next){
+
         res.render('login', {'title_page': PAGE_TITLE, message: req.flash('error') });
     });
 
@@ -65,6 +66,7 @@ module.exports = function(app, passport){
     
     // Home page
     app.get('/', isLoggedIn, function(req, res, next) { // check if it is logged
+        //@TODO Dont pass unneed information
         Users.count({'role': TEACHER_TITLE}, function(err, teachers_count){
             Activities.count({}, function(err, activities_count){
                 user_data = {
@@ -75,16 +77,15 @@ module.exports = function(app, passport){
                     'teachers_count': teachers_count,
                     'activities_count': activities_count
                 }
-                res.render('index', user_data); // pass the user role to identify if the user is a teacher or not
+                res.render('index', user_data);
             });
         });
     });
 
     // Users
     app.get('/users', isLoggedIn, function(req, res, next) { // check if it is logged
-        if(req.user.role == coordinator_name){
+        if(req.user.role == coordinator_name){ // check if it is a coordinator
             Users.find({'role': 'Profesor'}, null, {sort: {'_id': 1}}, function(err, all_teachers){ // find all 'Profesores' sorted by id
-                //@TODO
                 user_data = {
                     'title_page': PAGE_TITLE,
                     'user_name': req.user.name,
@@ -93,7 +94,6 @@ module.exports = function(app, passport){
                     'user_added' : req.query.added,
                     'teachers_list' : all_teachers
                 }
-
                 res.render('users', user_data);
             });
         }
