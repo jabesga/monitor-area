@@ -215,21 +215,24 @@ module.exports = function(app, passport){
             //@TODO
 
             students_list = [];
-            for(var i = 0; i < spreadsheet['data']['Escolapios'].length; i++){
-                var row = spreadsheet['data']['Escolapios'][i];
+            
+            for(var j = 2; j < Object.keys(spreadsheet['data']).length; j++){
+                for(var i = 0; i < spreadsheet['data'][Object.keys(spreadsheet['data'])[j]].length; i++){
+                    var row = spreadsheet['data'][Object.keys(spreadsheet['data'])[j]][i];
 
-                if(row['Nombre'] == 'X' && row['Apellido1'] == 'X'){
-                    break;
-                }
-                var student = new Students({
-                    name: row['Nombre'],
-                    surname1: row['Apellido1'],
-                    surname2: row['Apellido2'],
-                    group: row['Grupo'],
-                    phone: row['Tfno'],
-                });
+                    if(row['Nombre'] == 'X' && row['Apellido1'] == 'X'){
+                        break;
+                    }
+                    var student = new Students({
+                        name: row['Nombre'],
+                        surname1: row['Apellido1'],
+                        surname2: row['Apellido2'],
+                        group: row['Grupo'],
+                        phone: row['Tfno'],
+                    });
 
-                students_list.push(student); 
+                    students_list.push(student); 
+                }  
             }
             /*
             spreadsheet['data']['Escolapios'].filter(function(row){ // Clases del colegio
