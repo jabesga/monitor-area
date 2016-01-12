@@ -1,5 +1,6 @@
 var Users = require('../app/models/user');
-var Schools = require('../app/models/school');
+var Activities = require('../app/models/activity');
+var Students = require('../app/models/student')
 
 var multer = require('multer');
 
@@ -16,8 +17,9 @@ var upload = multer({ storage: storage });
 
 module.exports = function(app, passport){
 
-    var PAGE_TITLE = "Intranet | CampTecnologico"
-    var coordinator_name_name = "Coordinador"
+    var PAGE_TITLE = "Intranet | CampTecnologico";
+    var TEACHER_TITLE = "Profesor";
+    var coordinator_name = "coordinator";
     /*
         app.get('/previouspage', function(req, res, next){
             if(req.session.returnTo){
@@ -63,84 +65,207 @@ module.exports = function(app, passport){
     
     // Home page
     app.get('/', isLoggedIn, function(req, res, next) { // check if it is logged
-        Users.count({'role': 'teacher'}, function(err, count){
-            user_data = {
-                'title_page': PAGE_TITLE,
-                'user_name': req.user.name,
-                'user_image': '/images/logo.png',
-                'user_role': req.user.role,
-                'teachers_count': count
-            }
-            
-            res.render('index', user_data); // pass the user role to identify if the user is a teacher or not
+        Users.count({'role': TEACHER_TITLE}, function(err, teachers_count){
+            Activities.count({}, function(err, activities_count){
+                user_data = {
+                    'title_page': PAGE_TITLE,
+                    'user_name': req.user.name,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'teachers_count': teachers_count,
+                    'activities_count': activities_count
+                }
+                res.render('index', user_data); // pass the user role to identify if the user is a teacher or not
+            });
         });
-        
     });
 
     // Users
     app.get('/users', isLoggedIn, function(req, res, next) { // check if it is logged
         if(req.user.role == coordinator_name){
-            Users.find({'role': 'teacher'}, null, {sort: {'_id': 1}}, function(err, all_teachers){
-
-                var list = [];
-
-                all_teachers.forEach(function(user){
-                    list.push({
-                        '_id': user._id,
-                        'name': user.name,
-                        'email': user.email,
-                    });
-                });
-
+            Users.find({'role': 'Profesor'}, null, {sort: {'_id': 1}}, function(err, all_teachers){ // find all 'Profesores' sorted by id
+                //@TODO
                 user_data = {
                     'title_page': PAGE_TITLE,
-                    'user_name': req.user.username,
+                    'user_name': req.user.name,
                     'user_image': '/images/logo.png',
                     'user_role': req.user.role,
                     'user_added' : req.query.added,
-                    'teachers_list' : list
+                    'teachers_list' : all_teachers
                 }
 
-                res.render('users', user_data); // pass the user role to identify if the user is a teacher or not
+                res.render('users', user_data);
             });
+        }
+        else{
+            res.redirect('/');
         }
     });
 
     // Add teachers
     app.post('/users', isLoggedIn, function(req, res, next) { // check if it is logged
-        if(req.user.role == coordinator_name){
+        if(req.user.role == coordinator_name){ // check if has permissions
 
-            user_data = {
-                'title_page': PAGE_TITLE,
-                'user_name': req.user.name,
-                'user_image': '/images/logo.png',
-                'user_role': req.user.role
-            }
-            var teacher = new Users({
+            var teacher = new Users({ // create new teacher with data from the form
                 name: req.body['fullname'],
-                password: req.body['password'], // @TODO: Hashear contrasenia
+                password: req.body['password'], // @TODO: Hash password
                 email : req.body['email'],
-                role : 'Monitor'
+                role : 'Profesor'
             });
 
             teacher.save(function(err, saved){
                 if(err){
                     throw err;
                     console.log(err);
-                    res.redirect("/users?added=0");
+                    res.redirect("/users?added=0"); // 0 = Error adding
                 }
                 else{
-                    res.redirect("/users?added=1");
+                    res.redirect("/users?added=1"); // 1 = Added successfully
                 }
             });
         }
     });
 
+    app.get('/import-activities', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
 
-
-    app.get('/teachers', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role == coordinator_name){
-            Users.find({'role': 'monitor'}, null, {sort: {'_id': 1}}, function(err,all_users){
+            Activities.find({}, null, {sort: {'_id': 1}}, function(err, all_activities){
+                //@TODO
+                user_data = {
+                    'title_page': PAGE_TITLE,
+                    'user_name': req.user.name,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'user_added' : req.query.added,
+                    'activities_list': all_activities
+                }
+
+                res.render('import-activities', user_data);  
+            });
+        }
+        else{
+            res.redirect('/');
+        }
+    });
+
+    app.post('/import-activities', upload.single('file'), function(req, res){
+        var Parser = require('parse-xl');
+        spreadsheet = new Parser('./uploads/' + req.file['filename']);
+
+        Activities.remove({}, function(err) {
+            console.log('Activities collection removed');
+            //@TODO
+
+            activities_list = [];
+            spreadsheet['data']['Sheet1'].filter(function(row){ // Clases del colegio
+                if (Object.keys(row).length == 7){
+                    var activity = new Activities({
+                        type: row['Tipo'],
+                        school: row['Colegio'],
+                        code: row['Codigo'],
+                        courses: row['Cursos'],
+                        day: row['Dia'],
+                        schedule: row['Hora'],
+                        teachers: row['Monitores'].split(", ")
+                    });
+
+                    activities_list.push(activity);
+                }
+            });
+
+            Activities.create(activities_list, function(err, inserted){
+                if(err){
+                    throw err;
+                    console.log(err);
+                }
+                else{
+                    res.redirect('/import-activities?added=' + activities_list.length);
+                }
+            });
+        });
+    });
+
+    app.get('/import-students', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+        if(req.user.role == coordinator_name){
+            Students.find({}, null, {sort: {'_id': 1}}, function(err, all_students){
+                //@TODO
+                user_data = {
+                    'title_page': PAGE_TITLE,
+                    'user_name': req.user.name,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'user_added' : req.query.added,
+                    'students_list': all_students
+                }
+
+                res.render('import-students', user_data);  
+            });
+        }
+        else{
+            res.redirect('/');
+        }
+    });
+
+    app.post('/import-students', upload.single('file'), function(req, res){
+        var Parser = require('parse-xl');
+        spreadsheet = new Parser('./uploads/' + req.file['filename']);
+
+        Students.remove({}, function(err) {
+            console.log('\tStudents collection removed');
+            //@TODO
+
+            students_list = [];
+            for(var i = 0; i < spreadsheet['data']['Escolapios'].length; i++){
+                var row = spreadsheet['data']['Escolapios'][i];
+
+                if(row['Nombre'] == 'X' && row['Apellido1'] == 'X'){
+                    break;
+                }
+                var student = new Students({
+                    name: row['Nombre'],
+                    surname1: row['Apellido1'],
+                    surname2: row['Apellido2'],
+                    group: row['Grupo'],
+                    phone: row['Tfno'],
+                });
+
+                students_list.push(student); 
+            }
+            /*
+            spreadsheet['data']['Escolapios'].filter(function(row){ // Clases del colegio
+                if(row['Nombre'] == 'X' && row['Apellido1'] == 'X'){
+                    break;
+                }
+                var student = new Students({
+                    name: row['Nombre'],
+                    surname1: row['Apellido1'],
+                    surname2: row['Apellido2'],
+                    group: row['Grupo'],
+                    phone: row['Tfno'],
+                });
+
+                students_list.push(student);  
+            });
+            */
+
+            Students.create(students_list, function(err, inserted){
+                if(err){
+                    throw err;
+                    console.log(err);
+                }
+                else{
+                    res.redirect('/import-students?added=' + students_list.length);
+                }
+            });
+        });
+    });
+
+    //@TODO: Teachers field must be an array
+    app.get('/my-schools', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+        if(req.user.role != coordinator_name){
+            Activities.find({'teachers': req.user.name}, null, {sort: {'_id': 1}}, function(err, all_my_activities){
+                console.log(all_my_activities);
+                /*
                 var list = [];
                 all_users.forEach(function(user){
                     list.push({
@@ -152,195 +277,42 @@ module.exports = function(app, passport){
                     });
                 });
                 //console.log(list);
-                res.render('teachers', { 'list_of_monitors': list });
+                */
+                user_data = {
+                    'title_page': PAGE_TITLE,
+                    'user_name': req.user.name,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'my_activities': all_my_activities
+                }
+                res.render('my_schools', user_data);
             });
         }
       
     });
 
-    app.get('/schools', isLoggedIn, function(req, res, next) {
+    app.get('/classroom', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+        if(req.user.role != coordinator_name){
+            Students.find({'group': req.query.code}, null, {sort: {'_id': 1}}, function(err, students_list){
+                console.log(students_list);
+                //@TODO
+                user_data = {
+                    'title_page': PAGE_TITLE,
+                    'user_name': req.user.name,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'group_code': req.query.code,
+                    'students_list': students_list
+                }
 
-        if(req.user.role == coordinator_name){
-
-            Schools.find({}, function(err,all_schools){
-                var list = [];
-                all_schools.forEach(function(school){
-                    list.push({
-                        'school_name': school['school_name'],
-                        'target': school['school_name'].replace(/\s+/g,""),
-                        'school_classrooms': school['school_classrooms']
-                    });
-                })
-
-                res.render('schools', { 'list_of_schools': list});
+                res.render('classroom', user_data);  
             });
-        }
-    });
-
-    app.get('/import-classrooms', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-
-        if(req.user.role == coordinator_name){   
-            res.render('schools');  
         }
         else{
             res.redirect('/');
         }
     });
 
-    app.get('/import-monitors', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-
-        if(req.user.role == coordinator_name){   
-            res.render('teachers');  
-        }
-        else{
-            res.redirect('/');
-        }
-    });
-
-    app.post('/import-monitors', upload.single('file'), function(req, res){
-        var Parser = require('parse-xl');
-        spreadsheet_of_monitors = new Parser('./uploads/' + req.file['filename']);
-
-        spreadsheet_of_monitors['data']['Sheet1'].filter(function(monitor){ // Clases del colegio
-            //if(monitor['MoniEstado'] == 'A'){
-                console.log(monitor['IdMonitor']);
-                var new_monitor = new Users({
-                    _id : monitor['IdMonitor'],
-                    username: monitor['Email_Monitor'],
-                    password: 123456, // TODO: Hashear contrasenia
-                    name : monitor['MoniNomb'],
-                    surname : monitor['MoniApe'],
-                    email : monitor['Email_Monitor'],
-                    role : 'monitor'
-                });
-
-                new_monitor.save(function(err, saved){
-                    if(err){
-                        throw err;
-                        console.log(err);
-                    }
-                }); 
-            //} 
-        });                         
-
-        res.redirect('/monitors');        
-    });
-    
-    app.post('/import-classrooms', upload.single('file'), function(req,res){
-        var Parser = require('parse-xl');
-        spreadsheet_of_school = new Parser('./uploads/' + req.file['filename']);
-
-        var d = new Date();
-        var n = d.getFullYear();
-
-        all_schools = [];
-        for (var i = 0; i < spreadsheet_of_school['data']['Sheet1'].length; i++) {
-            var row = spreadsheet_of_school['data']['Sheet1'][i];
-            if(all_schools.indexOf(row['Colegio']) == -1){
-                all_schools.push(row['Colegio']);
-            }  
-        }
-
-        all_schools.filter(function(name){
-            var new_school = new Schools({
-                school_name: name,
-                school_classrooms : []
-            });
-            new_school.save(function(err, saved){
-                if(err){
-                    throw err;
-                    console.log(err);
-                }
-            });
-        });
-
-        all_schools.filter(function(name){
-            Schools.findOne({'school_name': name}, function(err,school){
-                all_groups = []
-                for (var i = 0; i < spreadsheet_of_school['data']['Sheet1'].length; i++) {
-                    var row = spreadsheet_of_school['data']['Sheet1'][i];
-                    if(row['Colegio'] == name){
-                        var new_group = {
-                            code_name: row['Codigo'],
-                            day : row['Dia'],
-                            hour : row['Hora'],
-                            monitors : row['Monitores'],
-                            students : [], // Student_list TODO
-                            //technology_id : 0
-                        }
-                        all_groups.push(new_group);  
-                    }
-                    
-                }
-                
-                /*if(row['Monitores'] != undefined){
-                    new_group['monitors'] = row['Monitores'];
-                }*/
-                
-                Schools.update({'school_name': name}, { $set: {'school_classrooms' : all_groups }}, function(err, doc){
-                    //console.log("Añadido grupo" + err + doc);
-                });
-            });
-        });            
-
-        res.redirect('/classrooms');
-    });
-
-    app.get('/students', isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-
-        if(req.user.role == coordinator_name){   
-            res.render('students');  
-        }
-        else{
-            res.redirect('/');
-        }
-    });
-
-
-    app.post('/import-students', upload.single('file'), function(req,res){
-        var Parser = require('parse-xl');
-        spreadsheet_of_students = new Parser('./uploads/' + req.file['filename']);
-
-        
-        Schools.find({}, function(err, all_schools){
-            all_schools.forEach(function(school){
-                
-                if(school['school_name'] in spreadsheet_of_students['data']){
-                    //console.log(spreadsheet_of_students['data'][school['school_name']]);
-                    student_list = []
-                    spreadsheet_of_students['data'][school['school_name']].forEach(function(row){
-                        student_list.push({
-                            'nombre': row['Nombre'],
-                            'apellido1': row['Apellido1'],
-                            'apellido2': row['Apellido2'],
-                            'grupo': row['Grupo'],
-                        })
-                    });
-
-                    school['school_classrooms'].forEach(function(classroom){
-                        classroom['students'] = [];
-                        student_list.forEach(function(student){
-                            if(student['grupo'] == classroom['code_name']){
-                                classroom['students'].push({
-                                    'nombre': student['nombre'],
-                                    'apellido1': student['apellido1'],
-                                    'apellido2': student['apellido2'],
-                                })
-                            }
-                        });
-                    });
-
-                    Schools.update({'school_name': school['school_name']}, { $set: {'school_classrooms' : school['school_classrooms'] }}, function(err, doc){
-                        console.log("Añadido grupo" + err + doc);
-                    });
-                }
-
-            });
-        });
-        
-        res.redirect('/classrooms');
-    });    
-    
     app.use(function(req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;

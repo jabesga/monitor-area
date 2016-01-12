@@ -16,7 +16,7 @@ module.exports = function(passport){
     passport.use(new LocalStrategy(function(username, password, done) {
       process.nextTick(function() {
         Users.findOne({
-          'name': username.toLowerCase(), 
+          'email': username.toLowerCase(), 
         }, function(err, user) {
           if (err) {
 

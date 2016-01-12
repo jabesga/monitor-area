@@ -246,12 +246,12 @@ html
                 a(href='/')
                   i.fa.fa-home
                   span Inicio
-              li.active
-                a(href='#')
+              li
+                a(href='/users')
                   i.fa.fa-users
                   span Usuarios
-              li
-                a(href='/import-activities')
+              li.active
+                a(href='#')
                   i.fa.fa-calendar-check-o
                   span Importar actividades                            
               li
@@ -286,65 +286,85 @@ html
             li.active Here
         // Main content
         section.content
+          if user_added >= 1
+            .alert.alert-success.alert-dismissible
+              button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+              h4
+                i.icon.fa.fa-check
+                |  #{user_added} actividades añadidas con exito!
+              //| Success alert preview. This alert is dismissable.
+
+          .box.box-primary
+            .box-header.with-border
+              h3.box-title Importar actividades
+
+            form(role='form' id="uploadForm" enctype="multipart/form-data" action="/import-activities" method="post")
+              .box-body
+                .form-group
+                  label(for='exampleInputFile') Importar fichero de actividades
+                  input#exampleInputFile(type='file' name="file")
+                  p.help-block Importar un fichero borrará todos los datos anteriores. Asegurese de que su nuevo fichero incluye los datos anteriores para que puedan ser cargados de nuevo.
+
+              .box-footer
+                filename
+                button.btn.btn-primary(type='submit') Importar actividades
+                  
           .row
             .col-xs-12
               .box
                 .box-header
-                  h3.box-title Profesores
+                  h3.box-title Actividades
                 // /.box-header
                 .box-body.table-responsive.no-padding
                   table.table.table-hover
                     tbody
                       tr
-                        th ID
-                        th Nombre y apellidos
-                        th E-Mail
-                      each teacher in teachers_list
-                        tr
-                          td #{teacher._id}
-                          td #{teacher.name}
-                          td #{teacher.email}
+                        th Tipo
+                        th Colegio
+                        th Codigo
+                        th Cursos
+                        th Dia
+                        th Hora
+                        th Monitores
+                      each activity in activities_list
+                        if activity.type == "Extraescolar"   
+                          tr
+                            td #{activity.type}
+                            td #{activity.school}
+                            td #{activity.code}
+                            td #{activity.courses}
+                            td #{activity.day}
+                            td #{activity.schedule}
+                            td #{activity.teachers}
                 // /.box-body
               // /.box
-              if user_added == 1
-                .alert.alert-success.alert-dismissible
-                  button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
-                  h4
-                    i.icon.fa.fa-check
-                    |  Usuario añadido con exito!
-                  //| Success alert preview. This alert is dismissable.
-              if user_added == 0
-                .alert.alert-danger.alert-dismissible
-                  button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
-                  h4
-                    i.icon.fa.fa-ban
-                    | Hubo un problema añadiendo al usuario. Contacta con el administrador del sitio.
-
-
-              .box.box-info
-                .box-header.with-border
-                  h3.box-title Añadir profesor
+              .box
+                .box-header
+                  h3.box-title Clubs
                 // /.box-header
-                // form start
-                form.form-horizontal(action="users" method="post")
-                  .box-body
-                    .form-group
-                      label.col-sm-2.control-label(for='inputEmail3') Nombre y apellidos
-                      .col-sm-7
-                        input#inputEmail3.form-control(required name="fullname" type='text', placeholder='Nombre completo')
-                    .form-group
-                      label.col-sm-2.control-label(for='inputEmail3') E-Mail
-                      .col-sm-7
-                        input#inputEmail3.form-control(required name="email" type='email', placeholder='Email')                          
-                    .form-group
-                      label.col-sm-2.control-label(for='inputPassword3') Password
-                      .col-sm-7
-                        input#inputPassword3.form-control(required name="password" type='password', placeholder='Password')
-
-                  // /.box-body
-                  .box-footer
-                    button.btn.btn-info.pull-right(type='submit') Añadir profesor
-                  // /.box-footer
+                .box-body.table-responsive.no-padding
+                  table.table.table-hover
+                    tbody
+                      tr
+                        th Tipo
+                        th Colegio
+                        th Codigo
+                        th Cursos
+                        th Dia
+                        th Hora
+                        th Monitores
+                      each activity in activities_list
+                        if activity.type == "Club"   
+                          tr
+                            td #{activity.type}
+                            td #{activity.school}
+                            td #{activity.code}
+                            td #{activity.courses}
+                            td #{activity.day}
+                            td #{activity.schedule}
+                            td #{activity.teachers}
+                // /.box-body
+              // /.box              
 
           // Your Page Content Here
         // /.content

@@ -207,8 +207,8 @@ html
             if user_role!="coordinator"
               li.header MENÚ DE PROFESOR
               // Optionally, you can add icons to the links
-              li
-                a(href='#')
+              li.active
+                a(href='/')
                   i.fa.fa-home
                   span Inicio
               li
@@ -216,7 +216,7 @@ html
                   i.fa.fa-glass
                   span Mis talleres                
               li 
-                a(href='#')
+                a(href='/my-schools')
                   i.fa.fa-graduation-cap
                   span Mis colegios
               li
@@ -242,12 +242,12 @@ html
                         a(href='#') Link in level 2
             else
               li.header MENÚ DE COORDINADOR
-              li
-                a(href='/')
-                  i.fa.fa-home
-                  span Inicio
               li.active
                 a(href='#')
+                  i.fa.fa-home
+                  span Inicio
+              li
+                a(href='/users')
                   i.fa.fa-users
                   span Usuarios
               li
@@ -285,66 +285,31 @@ html
                 |  Level
             li.active Here
         // Main content
-        section.content
+        section.content     
           .row
             .col-xs-12
               .box
                 .box-header
-                  h3.box-title Profesores
+                  h3.box-title #{group_code}
                 // /.box-header
                 .box-body.table-responsive.no-padding
                   table.table.table-hover
                     tbody
                       tr
-                        th ID
-                        th Nombre y apellidos
-                        th E-Mail
-                      each teacher in teachers_list
-                        tr
-                          td #{teacher._id}
-                          td #{teacher.name}
-                          td #{teacher.email}
+                        th Nombre
+                        th Apellido1
+                        th Apellido2
+                        th Grupo
+                        th Telefono
+                      each student in students_list
+                          tr
+                            td #{student.name}
+                            td #{student.surname1}
+                            td #{student.surname2}
+                            td #{student.group}
+                            td #{student.phone}
                 // /.box-body
               // /.box
-              if user_added == 1
-                .alert.alert-success.alert-dismissible
-                  button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
-                  h4
-                    i.icon.fa.fa-check
-                    |  Usuario añadido con exito!
-                  //| Success alert preview. This alert is dismissable.
-              if user_added == 0
-                .alert.alert-danger.alert-dismissible
-                  button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
-                  h4
-                    i.icon.fa.fa-ban
-                    | Hubo un problema añadiendo al usuario. Contacta con el administrador del sitio.
-
-
-              .box.box-info
-                .box-header.with-border
-                  h3.box-title Añadir profesor
-                // /.box-header
-                // form start
-                form.form-horizontal(action="users" method="post")
-                  .box-body
-                    .form-group
-                      label.col-sm-2.control-label(for='inputEmail3') Nombre y apellidos
-                      .col-sm-7
-                        input#inputEmail3.form-control(required name="fullname" type='text', placeholder='Nombre completo')
-                    .form-group
-                      label.col-sm-2.control-label(for='inputEmail3') E-Mail
-                      .col-sm-7
-                        input#inputEmail3.form-control(required name="email" type='email', placeholder='Email')                          
-                    .form-group
-                      label.col-sm-2.control-label(for='inputPassword3') Password
-                      .col-sm-7
-                        input#inputPassword3.form-control(required name="password" type='password', placeholder='Password')
-
-                  // /.box-body
-                  .box-footer
-                    button.btn.btn-info.pull-right(type='submit') Añadir profesor
-                  // /.box-footer
 
           // Your Page Content Here
         // /.content

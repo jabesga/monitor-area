@@ -216,7 +216,7 @@ html
                   i.fa.fa-glass
                   span Mis talleres                
               li 
-                a(href='#')
+                a(href='/my-schools')
                   i.fa.fa-graduation-cap
                   span Mis colegios
               li
@@ -250,18 +250,15 @@ html
                 a(href='/users')
                   i.fa.fa-users
                   span Usuarios
-              li                
-                a(href='/schools')
-                  i.fa.fa-graduation-cap
-                  span Colegios
               li
-                a(href='/teachers')
-                  i.fa.fa-files-o
-                  span Documentacion                
+                a(href='/import-activities')
+                  i.fa.fa-calendar-check-o
+                  span Importar actividades                            
               li
-                a(href='/students')
+                a(href='/import-students')
                   i.fa.fa-users
                   span Importar estudiantes
+
               //                              
                   li.treeview
                     a(href='#')
@@ -290,19 +287,32 @@ html
             li.active Here
         // Main content
         section.content
-          .row
-            .col-lg-3.col-xs-6
-              // small box
-              .small-box.bg-aqua
-                .inner
-                  h3 #{teachers_count}
-                  p Profesores
-                .icon
-                  i.ion.ion-person-stalker
-                a.small-box-footer(href='/users')
-                  | Mas información 
-                  i.fa.fa-arrow-circle-right
-            // ./col
+          if user_role =="coordinator"
+            .row
+              .col-lg-3.col-xs-6
+                // small box
+                .small-box.bg-aqua
+                  .inner
+                    h3 #{teachers_count}
+                    p Profesores
+                  .icon
+                    i.ion.ion-person-stalker
+                  a.small-box-footer(href='/users')
+                    | Mas información 
+                    i.fa.fa-arrow-circle-right
+              // ./col
+              .col-lg-3.col-xs-6
+                // small box
+                .small-box.bg-yellow
+                  .inner
+                    h3 #{activities_count}
+                    p Actividades
+                  .icon
+                    i.ion.ion-ios-game-controller-b
+                  a.small-box-footer(href='/import-activities')
+                    | Mas información 
+                    i.fa.fa-arrow-circle-right
+              // ./col            
             
           // Your Page Content Here
         // /.content
@@ -314,7 +324,7 @@ html
           | Scientia potentia est
         // Default to the left
         strong
-          | Copyright © 2015
+          | Copyright © 2015 
           a(href='http://camptecnologico.com/') CampTecnologico
           | .
         |  All rights reserved.
