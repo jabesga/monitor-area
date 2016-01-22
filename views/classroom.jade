@@ -310,7 +310,8 @@ html
                             td #{student.phone}
                 // /.box-body
               // /.box
-
+            button.btn.btn-block.btn-default.btn-lg(type='button') Comprobar asistencia
+            button.btn.btn-block.btn-default.btn-lg(type='button') Informar de incidencia
           // Your Page Content Here
         // /.content
       // /.content-wrapper
@@ -344,3 +345,13 @@ html
       fixed layout.
     script(src="plugins/slimScroll/jquery.slimscroll.min.js")
     script(src="plugins/fastclick/fastclick.js")
+    script.
+      var list = []
+      $(document).ready(function(){
+        $('table tr').click(function(){
+          $(this).css("background-color", "OrangeRed");
+          list.push($(this).text());
+          console.log(list);
+          return false;
+        });
+      });

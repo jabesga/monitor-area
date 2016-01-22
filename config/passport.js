@@ -3,6 +3,7 @@ var LocalStrategy = require('passport-local').Strategy;
 
 var Users = require('../app/models/user');
 
+var passwordHash = require('password-hash');
 
 module.exports = function(passport){
     passport.serializeUser(function(user, done) {
@@ -27,7 +28,7 @@ module.exports = function(passport){
             return done(null, false, {message: "Credenciales incorrectas"});
           }
 
-          if (user.password != password) {
+          if (passwordHash.verify(password, user.password) === false) {
             return done(null, false, {message: "Credenciales incorrectas"});
           }
 

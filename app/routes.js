@@ -2,6 +2,9 @@ var Activities = require('../app/models/activity');
 var Students = require('../app/models/student')
 var Users = require('../app/models/user');
 
+// Password hashing
+var passwordHash = require('password-hash');
+
 // File upload system
 var multer = require('multer');
 var storage = multer.diskStorage({
@@ -18,12 +21,12 @@ module.exports = function(app, passport){
 
     var PAGE_TITLE = "Intranet | CampTecnologico";
     var TEACHER_TITLE = "Profesor";
-    var coordinator_name = "coordinator";
+    var coordinator_name = "Coordinador";
 
     /*
         app.get('/previouspage', function(req, res, next){
             if(req.session.returnTo){
-                res.redirect(req.session.returnTo);
+                res.redirec(treq.session.returnTo);
                 delete req.session.returnTo;
             }
             else{
@@ -64,6 +67,32 @@ module.exports = function(app, passport){
         res.redirect('/');
     });
     
+    // TEMP: Generate admin
+    /*
+    app.get('/generate-admin', function(req, res, next) { // check if it is logged
+    
+        var hashedPassword = passwordHash.generate('admin');
+
+        var teacher = new Users({ // create new teacher with data from the form
+            name: 'admin',
+            password: hashedPassword,
+            email : 'admin@admin.com',
+            role : coordinator_name
+        });
+
+        teacher.save(function(err, saved){
+            if(err){
+                throw err;
+                console.log(err);
+                res.redirect("/"); // 0 = Error adding
+            }
+            else{
+                res.redirect("/"); // 1 = Added successfully
+            }
+        });
+    });
+    */
+
     // Home page
     app.get('/', isLoggedIn, function(req, res, next) { // check if it is logged
         //@TODO Dont pass unneed information
@@ -85,7 +114,7 @@ module.exports = function(app, passport){
     // Users
     app.get('/users', isLoggedIn, function(req, res, next) { // check if it is logged
         if(req.user.role == coordinator_name){ // check if it is a coordinator
-            Users.find({'role': 'Profesor'}, null, {sort: {'_id': 1}}, function(err, all_teachers){ // find all 'Profesores' sorted by id
+            Users.find({}, null, {sort: {'_id': 1}}, function(err, all_teachers){ // find all 'Profesores' sorted by id
                 user_data = {
                     'title_page': PAGE_TITLE,
                     'user_name': req.user.name,
@@ -106,9 +135,11 @@ module.exports = function(app, passport){
     app.post('/users', isLoggedIn, function(req, res, next) { // check if it is logged
         if(req.user.role == coordinator_name){ // check if has permissions
 
+            var hashedPassword = passwordHash.generate(req.body['password']);
+
             var teacher = new Users({ // create new teacher with data from the form
                 name: req.body['fullname'],
-                password: req.body['password'], // @TODO: Hash password
+                password: hashedPassword,
                 email : req.body['email'],
                 role : 'Profesor'
             });
@@ -157,7 +188,7 @@ module.exports = function(app, passport){
             //@TODO
 
             activities_list = [];
-            spreadsheet['data']['Sheet1'].filter(function(row){ // Clases del colegio
+            spreadsheet['data']['MONITORES'].filter(function(row){ // Clases del colegio
                 if (Object.keys(row).length == 7){
                     var activity = new Activities({
                         type: row['Tipo'],
@@ -325,6 +356,7 @@ module.exports = function(app, passport){
     if (app.get('env') === 'development') {
       app.use(function(err, req, res, next) {
         res.status(err.status || 500);
+        console.log(err.message, err);
         res.render('error', {
           message: err.message,
           error: err
@@ -338,5 +370,5 @@ module.exports = function(app, passport){
             message: err.message,
             error: {}
         });
-    });   
+    });
 }
