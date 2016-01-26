@@ -142,7 +142,60 @@ html
                         .pull-left.info
                             p #{user_name}
                     block sidebar
-
+                        // Sidebar Menu
+                        ul.sidebar-menu
+                            if user_role!="Coordinador"
+                                li.header MENÚ DE PROFESOR
+                                // Optionally, you can add icons to the links
+                                li
+                                    a(href='/')
+                                        i.fa.fa-home
+                                        span Inicio
+                                //li
+                                    a(href='#')
+                                        i.fa.fa-glass
+                                        span Mis talleres                
+                                li 
+                                    a(href='/my-schools')
+                                        i.fa.fa-graduation-cap
+                                        span Mis extraescolares
+                                //li
+                                    a(href='#')
+                                        i.fa.fa-files-o
+                                        span Documentacion
+                                //li
+                                    a(href='#')
+                                        i.fa.fa-download
+                                        span Descargas                
+                                //li.treeview
+                                    a(href='#')
+                                        i.fa.fa-gear
+                                        span Otros
+                                            i.fa.fa-angle-left.pull-right
+                                //ul.treeview-menu
+                                  li
+                                    a(href='#')
+                                      i.fa.fa-slack
+                                      span Unirse a Slack
+                            else
+                                li.header MENÚ DE COORDINADOR
+                                li
+                                    a(href='/')
+                                        i.fa.fa-home
+                                        span Inicio
+                                li
+                                    a(href='/users')
+                                        i.fa.fa-users
+                                        span Gestion de usuarios
+                                li
+                                    a(href='/import-activities')
+                                        i.fa.fa-calendar-check-o
+                                        span Importar actividades                            
+                                li
+                                    a(href='/import-students')
+                                        i.fa.fa-users
+                                        span Importar estudiantes
+                        // /.sidebar-menu   
                 // /.sidebar
 
             // Content Wrapper. Contains page content

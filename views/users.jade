@@ -2,62 +2,6 @@ doctype html
 
 extends ./layout.jade
 
-block sidebar
-    // Sidebar Menu
-    ul.sidebar-menu
-        if user_role!="Coordinador"
-            li.header MENÚ DE PROFESOR
-            // Optionally, you can add icons to the links
-            li
-                a(href='/')
-                    i.fa.fa-home
-                    span Inicio
-            li
-                a(href='#')
-                    i.fa.fa-glass
-                    span Mis talleres                
-            li 
-                a(href='/my-schools')
-                    i.fa.fa-graduation-cap
-                    span Mis colegios
-            li
-                a(href='#')
-                    i.fa.fa-files-o
-                    span Documentacion
-            li
-                a(href='#')
-                    i.fa.fa-download
-                    span Descargas                
-            li.treeview
-                a(href='#')
-                    i.fa.fa-gear
-                    span Otros
-                        i.fa.fa-angle-left.pull-right
-            ul.treeview-menu
-              li
-                a(href='#')
-                  i.fa.fa-slack
-                  span Unirse a Slack
-        else
-            li.header MENÚ DE COORDINADOR
-            li
-                a(href='/')
-                    i.fa.fa-home
-                    span Inicio
-            li
-                a(href='/users')
-                    i.fa.fa-users
-                    span Gestion de usuarios
-            li
-                a(href='/import-activities')
-                    i.fa.fa-calendar-check-o
-                    span Importar actividades                            
-            li
-                a(href='/import-students')
-                    i.fa.fa-users
-                    span Importar estudiantes
-    // /.sidebar-menu   
-
 block content
     // Content Header (Page header)
     section.content-header
@@ -77,16 +21,16 @@ block content
             .col-xs-12
                 if user_added == 1
                     .alert.alert-success.alert-dismissible
-                    button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
-                    h4
-                        i.icon.fa.fa-check
-                        |  Usuario añadido con exito!
+                        button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+                        h4
+                            i.icon.fa.fa-check
+                            |  Usuario añadido con exito!
                 if user_added == 0
                     .alert.alert-danger.alert-dismissible
-                    button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
-                    h4
-                        i.icon.fa.fa-ban
-                        | Hubo un problema añadiendo al usuario. Contacta con el administrador del sitio.
+                        button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+                        h4
+                            i.icon.fa.fa-ban
+                            | Hubo un problema añadiendo al usuario. Contacta con el administrador del sitio.
                 
                 .box
                     .box-header
@@ -125,9 +69,24 @@ block content
                                 .col-sm-7
                                     input#inputEmail3.form-control(required name="email" type='email', placeholder='Email')                          
                             .form-group
-                                label.col-sm-2.control-label(for='inputPassword3') Password
+                                label.col-sm-2.control-label(for='inputPassword3') Contraseña
                                 .col-sm-7
-                                    input#inputPassword3.form-control(required name="password" type='password', placeholder='Password')
+                                    label.form-control La contraseña se generará automáticamente
+                                    //input#inputPassword3.form-control(required name="password" type='password', placeholder='Password')
+                            .form-group
+                                label.col-sm-2.control-label(for='inputPassword3') Notificar por correo
+                                .col-sm-7
+                                    .checkbox
+                                      label
+                                        input(name="notify" type='checkbox')
+                            .form-group
+                                label.col-sm-2.control-label Rol
+                                .col-sm-7
+                                    select.form-control(name='role')
+                                        option Profesor
+                                        option Coordinador
+                                                        
+                             
                         // /.box-body
                         .box-footer
                             button.btn.btn-info.pull-right(type='submit') Añadir profesor
