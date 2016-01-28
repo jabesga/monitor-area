@@ -296,7 +296,7 @@ html
                   table.table.table-hover
                     tbody
                       tr
-                        th Nombre
+                        th.nombre_cell Nombre
                         th Apellido1
                         th Apellido2
                         th Grupo
@@ -310,8 +310,14 @@ html
                             td #{student.phone}
                 // /.box-body
               // /.box
-            button.btn.btn-block.btn-default.btn-lg(type='button') Comprobar asistencia
-            button.btn.btn-block.btn-default.btn-lg(type='button') Informar de incidencia
+
+              button.btn.btn-block.btn-default.btn-lg.comprobar_asistencia(type='button' style="display: block;") Comprobar asistencia
+
+              .col-xs-6.modo_asistencia(style="display: None;")
+                button.btn.btn-block.btn-default.btn-lg.confirmar_asistencia(type='button') Confirmar proceso de asistencia
+                button.btn.btn-block.btn-default.btn-lg.cancelar_asistencia(type='button') Cancelar proceso asistencia
+
+              button.btn.btn-block.btn-default.btn-lg(type='button') Informar de incidencia
           // Your Page Content Here
         // /.content
       // /.content-wrapper
@@ -349,9 +355,20 @@ html
       var list = []
       $(document).ready(function(){
         $('table tr').click(function(){
-          $(this).css("background-color", "OrangeRed");
-          list.push($(this).text());
-          console.log(list);
+          var student = $(this).find('td').html();
+          if(student){
+            var position = $.inArray(student, list)
+            if(position != -1){
+              list.splice(position, 1);
+              $(this).find('td').css("background-color", "White");
+            }
+            else{
+              list.push(student);
+              $(this).find('td').css("background-color", "OrangeRed");
+            }
+            console.log(list);
+          }
+          
           return false;
         });
       });

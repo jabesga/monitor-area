@@ -1,6 +1,7 @@
 var Activities = require('../app/models/activity');
 var Students = require('../app/models/student')
 var Users = require('../app/models/user');
+var Attendance = require('../app/models/activity');
 
 // Password hashing
 var passwordHash = require('password-hash');
@@ -17,7 +18,9 @@ var smtpConfig = {
         pass: settings.gmail.password
     }
 };
+
 var transporter = nodemailer.createTransport(smtpConfig);
+var moment = require('moment');
 
 
 // File upload system
@@ -332,6 +335,10 @@ module.exports = function(app, passport){
                 }
             });
         });
+    });
+
+    app.post('/attendance', isLoggedIn, function(req, res, next){
+        console.log("\tMISSING: " + request.body.students_missing);
     });
 
     //@TODO: Teachers field must be an array
