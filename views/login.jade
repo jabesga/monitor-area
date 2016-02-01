@@ -1,6 +1,6 @@
 html
     head
-        title=title_page
+        title Intranet | CampTecnologico
         meta(name="viewport" content="width=device-width, initial-scale=1.0")
         link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
         link(rel='stylesheet', href='/login/login.css')
@@ -39,12 +39,12 @@ html
                 // End # Login Form
 
                 // Begin | Lost Password Form
-                form#lost-form(style='display:none;')
+                form#lost-form(style='display:none;' action="/lost-password" method="post")
                   .modal-body
                     #div-lost-msg
                       #icon-lost-msg.glyphicon.glyphicon-chevron-right
                       span#text-lost-msg Escribe tu email.
-                    input#lost_email.form-control(type='text', placeholder='E-Mail', required='')
+                    input#lost_email.form-control(type='text', placeholder='E-Mail', required='' name="email")
                   .modal-footer
                     div
                       button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar

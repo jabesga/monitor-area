@@ -35,6 +35,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 // app.locals.pretty = true;
 
+var camp_auth = require('./app/camp_auth');
+var site = require('./app/site');
+
+
+app.get('/', camp_auth.isLoggedIn, site.index);
+app.route('/login').get(camp_auth.login).post(camp_auth.authenticate);
+app.get('/logout', camp_auth.logout);
+app.post('/recover-password', camp_auth.recover_password);
+
 require('./config/passport')(passport);
 require('./app/routes')(app,passport);
 
