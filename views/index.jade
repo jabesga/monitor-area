@@ -16,32 +16,32 @@ block content
     
     // Main content
     section.content
-        if user_role =="coordinator"
-        .row
-          .col-lg-3.col-xs-6
-            // small box
-            .small-box.bg-aqua
-              .inner
-                h3 #{teachers_count}
-                p Profesores
-              .icon
-                i.ion.ion-person-stalker
-              a.small-box-footer(href='/users')
-                | Mas información 
-                i.fa.fa-arrow-circle-right
-          // ./col
-          .col-lg-3.col-xs-6
-            // small box
-            .small-box.bg-yellow
-              .inner
-                h3 #{activities_count}
-                p Actividades
-              .icon
-                i.ion.ion-ios-game-controller-b
-              a.small-box-footer(href='/import-activities')
-                | Mas información 
-                i.fa.fa-arrow-circle-right
-          // ./col            
+        if user_role =="TEST"
+          .row
+            .col-lg-3.col-xs-6
+              // small box
+              .small-box.bg-aqua
+                .inner
+                  h3 #{teachers_count}
+                  p Profesores
+                .icon
+                  i.ion.ion-person-stalker
+                a.small-box-footer(href='/users')
+                  | Mas información 
+                  i.fa.fa-arrow-circle-right
+            // ./col
+            .col-lg-3.col-xs-6
+              // small box
+              .small-box.bg-yellow
+                .inner
+                  h3 #{activities_count}
+                  p Actividades
+                .icon
+                  i.ion.ion-ios-game-controller-b
+                a.small-box-footer(href='/import-activities')
+                  | Mas información 
+                  i.fa.fa-arrow-circle-right
+            // ./col            
         
       // Your Page Content Here
     // /.content

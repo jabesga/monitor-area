@@ -33,19 +33,41 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'jade'); // set up jade for templating
 app.set('views', path.join(__dirname, 'views'));
 
+app.set('env', 'development')
 // app.locals.pretty = true;
 
-var camp_auth = require('./app/camp_auth');
+var auth = require('./app/auth');
 var site = require('./app/site');
+var coordinator = require('./app/coordinator');
 
 
-app.get('/', camp_auth.isLoggedIn, site.index);
-app.route('/login').get(camp_auth.login).post(camp_auth.authenticate);
-app.get('/logout', camp_auth.logout);
-app.post('/recover-password', camp_auth.recover_password);
+// Routes
+app.get('/', auth.isLoggedIn, site.index);
+
+app.route('/login').get(auth.login).post(passport.authenticate('local', auth.redirection_options));
+app.post('/recover-password', auth.recover_password);
+app.get('/logout', auth.isLoggedIn, auth.logout);
+
+app.get('/users', auth.isLoggedInAndCoordinator, coordinator.users);
+app.post('register-user', auth.isLoggedInAndCoordinator, auth.register_user);
 
 require('./config/passport')(passport);
 require('./app/routes')(app,passport);
 
-app.listen(port);
-console.log('\tListening on port ' + port);
+
+if (app.get('env') === 'development') {
+    app.get('/generate-admin', auth.generate_admin);
+    app.use(site.error_development);
+}
+else{
+    app.use(site.error_production); // 500 Page
+}
+
+app.use(site.not_found); // 404 Page
+
+// Initialize server
+if (!module.parent) {
+    app.listen(port);
+    console.log('\tListening on port ' + port);
+}
+

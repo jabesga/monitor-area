@@ -4,7 +4,7 @@ html
     head
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
-        title Intranet | CampTecnologico
+        title Camptecnologico: Extranet
         // Tell the browser to be responsive to screen width
         meta(content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no', name='viewport')
 
@@ -49,9 +49,10 @@ html
                                 // Menu toggle button
                                 a.dropdown-toggle(href='#', data-toggle='dropdown')
                                     i.fa.fa-envelope-o
-                                    span.label.label-success 2
+                                    if user_messages != 0
+                                        span.label.label-success #{user_messages}
                                 ul.dropdown-menu
-                                    li.header Tienes 2 mensajes
+                                    li.header Tienes #{user_messages} mensajes
                                     li
                                         // inner menu: contains the messages
                                         ul.menu
@@ -60,7 +61,7 @@ html
                                                 a(href='#')
                                                     .pull-left
                                                         // User Image
-                                                        img.img-circle(src='#{user_image}', alt='User Image')
+                                                        img.img-circle(src='/images/logo.png', alt='User Image')
                                                         // Message title and timestamp
                                                     h4
                                                         | Equipo de soporte
@@ -74,7 +75,7 @@ html
                                                 a(href='#')
                                                     .pull-left
                                                         // User Image
-                                                        img.img-circle(src='#{user_image}', alt='User Image')
+                                                        img.img-circle(src='/images/logo.png', alt='User Image')
                                                         // Message title and timestamp
                                                     h4
                                                         | Equipo de soporte
@@ -94,9 +95,10 @@ html
                                 // Menu toggle button
                                 a.dropdown-toggle(href='#', data-toggle='dropdown')
                                     i.fa.fa-bell-o
-                                    span.label.label-warning 1
+                                    if user_notifications != 0
+                                        span.label.label-warning #{user_notifications}
                                 ul.dropdown-menu
-                                    li.header Tienes 1 notificaciones
+                                    li.header Tienes #{user_notifications} notificaciones
                                     li
                                         // Inner Menu: contains the notifications
                                         ul.menu
@@ -115,16 +117,16 @@ html
                                 // Menu Toggle Button
                                 a.dropdown-toggle(href='#', data-toggle='dropdown')
                                     // The user image in the navbar
-                                    img.user-image(src='#{user_image}', alt='User Image')
+                                    img.user-image(src='/images/logo.png', alt='User Image')
                                     // hidden-xs hides the username on small devices so only the image appears.
                                     span.hidden-xs #{user_name}
                                 ul.dropdown-menu
                                     // The user image in the menu
                                     li.user-header
-                                        img.img-circle(src='#{user_image}', alt='User Image')
+                                        img.img-circle(src='/images/logo.png', alt='User Image')
                                         p
                                             | #{user_name}
-                                            small #{user_role}
+                                            small !{user_role.replace(/1/g, 'Coordinador').replace(/2/g, 'Monitor')}
                                     li.user-footer
                                         .pull-left
                                             a.btn.btn-default.btn-flat(href='#') Cambiar contraseña
@@ -138,13 +140,13 @@ html
                     // Sidebar user panel (optional)
                     .user-panel
                         .pull-left.image
-                            img.img-circle(src='#{user_image}', alt='User Image')
+                            img.img-circle(src='/images/logo.png', alt='User Image')
                         .pull-left.info
                             p #{user_name}
                     block sidebar
                         // Sidebar Menu
                         ul.sidebar-menu
-                            if user_role!="Coordinador"
+                            if user_role == 2
                                 li.header MENÚ DE PROFESOR
                                 // Optionally, you can add icons to the links
                                 li

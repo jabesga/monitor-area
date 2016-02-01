@@ -44,47 +44,40 @@ block content
                                     th Nombre y apellidos
                                     th E-Mail
                                     th Rol
-                                each teacher in teachers_list
+                                each user in all_users
                                     tr
-                                        td #{teacher.name}
-                                        td #{teacher.email}
-                                        td #{teacher.role}
+                                        td #{user.name}
+                                        td #{user.email}
+                                        td !{user.role.replace(/1/g, 'Coordinador').replace(/2/g, 'Profesor')}
                     // /.box-body
                 // /.box
               
                 .box.box-info
                     .box-header.with-border
-                        h3.box-title Añadir profesor
+                        h3.box-title Añadir usuario
                     // /.box-header
 
                     // form start
                     form.form-horizontal(action="users" method="post")
+                        
                         .box-body
-                            .form-group
-                                label.col-sm-2.control-label(for='inputEmail3') Nombre y apellidos
-                                .col-sm-7
-                                    input#inputEmail3.form-control(required name="fullname" type='text', placeholder='Nombre completo')
-                            .form-group
-                                label.col-sm-2.control-label(for='inputEmail3') E-Mail
-                                .col-sm-7
-                                    input#inputEmail3.form-control(required name="email" type='email', placeholder='Email')                          
-                            .form-group
-                                label.col-sm-2.control-label(for='inputPassword3') Contraseña
-                                .col-sm-7
-                                    label.form-control La contraseña se generará automáticamente
-                                    //input#inputPassword3.form-control(required name="password" type='password', placeholder='Password')
-                            .form-group
-                                label.col-sm-2.control-label(for='inputPassword3') Notificar por correo
-                                .col-sm-7
-                                    .checkbox
-                                      label
-                                        input(name="notify" type='checkbox')
-                            .form-group
-                                label.col-sm-2.control-label Rol
-                                .col-sm-7
-                                    select.form-control(name='role')
-                                        option Profesor
-                                        option Coordinador
+                            .col-sm-7
+                                .form-group
+                                    label.col-sm-2.control-label(for='inputEmail3') Nombre y apellidos
+                                    .col-sm-7
+                                        input#inputEmail3.form-control(required name="fullname" type='text', placeholder='Nombre completo')
+                                .form-group
+                                    label.col-sm-2.control-label(for='inputEmail3') E-Mail
+                                    .col-sm-7
+                                        input#inputEmail3.form-control(required name="email" type='email', placeholder='Email')                          
+                                .form-group
+                                    label.col-sm-2.control-label Rol
+                                    .col-sm-7
+                                        select.form-control(name='role')
+                                            option Monitor
+                                            option Coordinador
+                            .col-sm-5
+                                p.help-block El usuario creado recibira un email con una contraseña generada aleatoriamente
                                                         
                              
                         // /.box-body

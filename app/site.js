@@ -1,19 +1,27 @@
 module.exports = {
-    index : function(req, res){
-        //@TODO Dont pass unneed information
-        Users.count({'role': TEACHER_TITLE}, function(err, teachers_count){
-            Activities.count({}, function(err, activities_count){
-                user_data = {
-                    'title_page': PAGE_TITLE,
-                    'user_name': req.user.name,
-                    'user_image': '/images/logo.png',
-                    'user_role': req.user.role,
-                    'teachers_count': teachers_count,
-                    'activities_count': activities_count
-                }
-                res.render('index', user_data);
-            });
-        });
+    index : function(req, res, next){
+
+        index_data = {
+            'user_name': req.user.name,
+            'user_role': req.user.role,
+            'user_messages': 0,
+            'user_notifications': 0,
+        }
+
+        res.render('index', index_data);
+    },
+
+    error_development : function(err, req, res, next) {
+        console.error(err.stack);
+        res.status(500).send(err.stack);
+    },
+
+    error_production : function(err, req, res, next) {
+        console.error(err.stack);
+        res.status(500).send('Something broke!');
+    },
+
+    not_found : function(req, res, next) {
+        res.status(404).send('Sorry cant find that!');
     }
 }
-
