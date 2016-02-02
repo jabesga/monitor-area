@@ -49,6 +49,7 @@ app.post('/recover-password', auth.recover_password);
 app.get('/logout', auth.isLoggedIn, auth.logout);
 
 app.get('/users', auth.isLoggedInAndCoordinator, coordinator.users);
+app.post('/users', auth.isLoggedInAndCoordinator, auth.register_user);
 app.post('/register-user', auth.isLoggedInAndCoordinator, auth.register_user);
 app.route('/change-password').get(auth.isLoggedIn, site.change_password).post(auth.isLoggedIn, auth.change_password);
 
