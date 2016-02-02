@@ -4,7 +4,7 @@ var Users = require('../app/models/user');
 var Attendance = require('../app/models/activity');
 
 var moment = require('moment');
-var camp_auth = require('./auth');
+var auth = require('./auth');
 
 // File upload system
 var multer = require('multer');
@@ -33,13 +33,10 @@ module.exports = function(app, passport){
             }
         });
     */
-        app.get('/import-activities', camp_auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-
-        if(req.user.role == coordinator_name){
+    app.get('/import-activities', auth.isLoggedInAndCoordinator, function(req, res, next) { // TODO: Cambiar a /monitores
             Activities.find({}, null, {sort: {'_id': 1}}, function(err, all_activities){
                 //@TODO
                 user_data = {
-                    'title_page': PAGE_TITLE,
                     'user_name': req.user.name,
                     'user_image': '/images/logo.png',
                     'user_role': req.user.role,
@@ -49,10 +46,6 @@ module.exports = function(app, passport){
 
                 res.render('import-activities', user_data);  
             });
-        }
-        else{
-            res.redirect('/');
-        }
     });
 
     app.post('/import-activities', upload.single('file'), function(req, res){
@@ -92,24 +85,19 @@ module.exports = function(app, passport){
         });
     });
 
-    app.get('/import-students', camp_auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
-        if(req.user.role == coordinator_name){
-            Students.find({}, null, {sort: {'_id': 1}}, function(err, all_students){
-                //@TODO
-                user_data = {
-                    'user_name': req.user.name,
-                    'user_image': '/images/logo.png',
-                    'user_role': req.user.role,
-                    'user_added' : req.query.added,
-                    'students_list': all_students
-                }
+    app.get('/import-students', auth.isLoggedInAndCoordinator, function(req, res, next) { // TODO: Cambiar a /monitores
+        Students.find({}, null, {sort: {'_id': 1}}, function(err, all_students){
+            //@TODO
+            user_data = {
+                'user_name': req.user.name,
+                'user_image': '/images/logo.png',
+                'user_role': req.user.role,
+                'user_added' : req.query.added,
+                'students_list': all_students
+            }
 
-                res.render('import-students', user_data);  
-            });
-        }
-        else{
-            res.redirect('/');
-        }
+            res.render('import-students', user_data);  
+        });
     });
 
     app.post('/import-students', upload.single('file'), function(req, res){
@@ -169,12 +157,12 @@ module.exports = function(app, passport){
         });
     });
 
-    app.post('/attendance', camp_auth.isLoggedIn, function(req, res, next){
+    app.post('/attendance', auth.isLoggedIn, function(req, res, next){
         console.log("\tMISSING: " + request.body.students_missing);
     });
 
     //@TODO: Teachers field must be an array
-    app.get('/my-schools', camp_auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+    app.get('/my-schools', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role != coordinator_name){
             Activities.find({'teachers': req.user.name}, null, {sort: {'_id': 1}}, function(err, all_my_activities){
                 console.log(all_my_activities);
@@ -203,7 +191,7 @@ module.exports = function(app, passport){
       
     });
 
-    app.get('/classroom', camp_auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+    app.get('/classroom', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role != coordinator_name){
             Students.find({'group': req.query.code}, null, {sort: {'_id': 1}}, function(err, students_list){
                 console.log(students_list);

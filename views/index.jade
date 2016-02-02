@@ -16,32 +16,19 @@ block content
     
     // Main content
     section.content
-        if user_role =="TEST"
-          .row
-            .col-lg-3.col-xs-6
-              // small box
-              .small-box.bg-aqua
-                .inner
-                  h3 #{teachers_count}
-                  p Profesores
-                .icon
-                  i.ion.ion-person-stalker
-                a.small-box-footer(href='/users')
-                  | Mas información 
-                  i.fa.fa-arrow-circle-right
-            // ./col
-            .col-lg-3.col-xs-6
-              // small box
-              .small-box.bg-yellow
-                .inner
-                  h3 #{activities_count}
-                  p Actividades
-                .icon
-                  i.ion.ion-ios-game-controller-b
-                a.small-box-footer(href='/import-activities')
-                  | Mas información 
-                  i.fa.fa-arrow-circle-right
-            // ./col            
-        
+        .row
+            .col-xs-12
+                if using_gen_password == true
+                    .col-lg-12.col-xs-6
+                      // small box
+                      .small-box.bg-red
+                        .inner
+                          h3 Cambia tu contraseña!
+                          p Parece que aún estás usando la contraseña generada por defecto. Te recomendamos cambiar tu contraseña a una que recuerdes más facilmente
+                        .icon
+                          i.ion.ion-key
+                        a.small-box-footer(href='/change-password')
+                          | Cambiar mi contraseña 
+                          i.fa.fa-arrow-circle-right
       // Your Page Content Here
     // /.content

@@ -70,6 +70,22 @@ module.exports = {
         });
     },
 
+    change_password : function(req, res, next){
+        var passwordProvided = req.body['password'];
+        var hashedPassword = passwordHash.generate(passwordProvided);
+
+        Users.update({'name': req.user.name}, { $set: { 'password': hashedPassword, 'using_gen_password' : false }}, function(err, user){
+            if(err){
+                throw err;
+                console.log(err);
+                res.redirect("/");
+            }
+            else{
+                res.redirect("/");
+            }
+        });
+    },
+
     recover_password : function(req, res, next){
         var randomstring = Math.random().toString(36).slice(-8); // generate new password
         var hashedPassword = passwordHash.generate(randomstring);
