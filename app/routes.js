@@ -2,6 +2,7 @@ var Activities = require('../app/models/activity');
 var Students = require('../app/models/student')
 var Users = require('../app/models/user');
 var Attendance = require('../app/models/activity');
+var Logs = require('../app/models/log');
 
 var moment = require('moment');
 var auth = require('./auth');
@@ -213,6 +214,34 @@ module.exports = function(app, passport){
         else{
             res.redirect('/');
         }
+    });
+
+    app.post('/register-attendance', auth.isLoggedIn, function(req, res, next) {
+        var list = req.body['list[]'];
+        var group = req.body['group'];
+        var date = moment().format('MMMM Do YYYY, h:mm:ss a');
+        //db.insert(log, {estudiante, grupo, moment})
+
+        logs_list = [];
+        list.forEach(function(element, index, array){
+            var log = new Logs({
+                'student': element,
+                'group': group,
+                'timestamp': date
+            })
+            logs_list.push(log);
+        });        
+
+        Logs.create(logs_list, function(err, inserted){
+            if(err){
+                throw err;
+                console.log(err);
+            }
+            else{
+                console.log('\tLogs registrados');
+            }
+        });
+        res.send({'success': true});       
     });
 
 }
