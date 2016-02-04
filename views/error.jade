@@ -1,0 +1,44 @@
+doctype html
+//
+  A Design by W3layouts
+  Author: W3layout
+  Author URL: http://w3layouts.com
+  License: Creative Commons Attribution 3.0 Unported
+  License URL: http://creativecommons.org/licenses/by/3.0/
+head
+  title 404 error page
+  meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+  meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1')
+  script(src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+  link(href='css/style.css', rel='stylesheet', type='text/css', media='all')
+// ---start-wrap-------
+.wrap
+  // ---start-content-------
+  .content
+    // ---start-logo-------
+    .logo
+      h1
+        a(href='/')
+          img(src='images/logo.png')
+      span
+        img(src='images/signal.png')
+        | Oops! The Page you requested was not found!
+    // ---end-logo-------
+    // ---start-search-bar-section-------
+    //.buttom
+      .seach_bar
+        p
+          | you can go to 
+          span
+            a(href='#') home
+          |  page or search here
+        .search_box
+          form
+            input(type='text', value='Search', onfocus="this.value = '';", onblur="if (this.value == '') {this.value = 'Search';}")
+            input(type='submit', value='')
+    // ---end-sear-bar-------
+  // --copy-right------------
+  //p.copy_right
+    | © 2014 Template by
+    a(href='http://w3layouts.com', target='_blank')  w3layouts
+// -------end-wrap--------

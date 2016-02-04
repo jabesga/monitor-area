@@ -36,6 +36,7 @@ module.exports = {
     },
 
     not_found : function(req, res, next) {
+        res.status(404).render('error');
         res.status(404).send('Sorry cant find that!');
     }
 }
