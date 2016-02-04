@@ -217,10 +217,11 @@ module.exports = function(app, passport){
     });
 
     app.post('/register-attendance', auth.isLoggedIn, function(req, res, next) {
-        var list = req.body['list[]'];
+        var list = [];
+        list = list.concat(req.body['list[]']); // if only one element is an string
+
         var group = req.body['group'];
         var date = moment().format('MMMM Do YYYY, h:mm:ss a');
-        //db.insert(log, {estudiante, grupo, moment})
 
         logs_list = [];
         list.forEach(function(element, index, array){
