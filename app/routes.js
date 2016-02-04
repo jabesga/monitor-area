@@ -34,7 +34,7 @@ module.exports = function(app, passport){
         });
     */
     app.get('/import-activities', auth.isLoggedInAndCoordinator, function(req, res, next) { // TODO: Cambiar a /monitores
-            Activities.find({}, null, {sort: {'_id': 1}}, function(err, all_activities){
+            Activities.find({}, null, {sort: {'day': 1, 'schedule': 1}}, function(err, all_activities){
                 //@TODO
                 user_data = {
                     'user_name': req.user.name,
@@ -64,7 +64,7 @@ module.exports = function(app, passport){
                         school: row['Colegio'],
                         code: row['Codigo'],
                         courses: row['Cursos'],
-                        day: row['Dia'],
+                        day: row['Dia'].replace('L',1).replace('M',2).replace('X',3).replace('J',4).replace('V',5).replace('S',6),
                         schedule: row['Hora'],
                         teachers: row['Monitores'].split(", ")
                     });
@@ -164,21 +164,8 @@ module.exports = function(app, passport){
     //@TODO: Teachers field must be an array
     app.get('/my-schools', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role != coordinator_name){
-            Activities.find({'teachers': req.user.name}, null, {sort: {'_id': 1}}, function(err, all_my_activities){
+            Activities.find({'teachers': req.user.name}, null, {sort: {'day': 1, 'schedule': 1}}, function(err, all_my_activities){
                 console.log(all_my_activities);
-                /*
-                var list = [];
-                all_users.forEach(function(user){
-                    list.push({
-                        '_id': user._id,
-                        'username': user.username,
-                        'name': user.name,
-                        'surname': user.surname,
-                        'email': user.email
-                    });
-                });
-                //console.log(list);
-                */
                 user_data = {
                     'user_name': req.user.name,
                     'user_image': '/images/logo.png',
@@ -186,6 +173,22 @@ module.exports = function(app, passport){
                     'my_activities': all_my_activities
                 }
                 res.render('my_schools', user_data);
+            });
+        }
+      
+    });
+
+    app.get('/my-clubs', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
+        if(req.user.role != coordinator_name){
+            Activities.find({'teachers': req.user.name}, null, {sort: {'day': 1, 'schedule': 1}}, function(err, all_my_activities){
+                console.log(all_my_activities);
+                user_data = {
+                    'user_name': req.user.name,
+                    'user_image': '/images/logo.png',
+                    'user_role': req.user.role,
+                    'my_activities': all_my_activities
+                }
+                res.render('my_clubs', user_data);
             });
         }
       

@@ -60,7 +60,7 @@ block content
                             td #{activity.school}
                             td #{activity.code}
                             td #{activity.courses}
-                            td #{activity.day}
+                            td !{activity.day.replace(/1/g, 'L').replace(/2/g, 'M').replace(/3/g, 'X').replace(/4/g, 'J').replace(/5/g, 'V').replace(/6/g, 'S')}
                             td #{activity.schedule}
                             td #{activity.teachers}
                 // /.box-body
@@ -87,7 +87,7 @@ block content
                             td #{activity.school}
                             td #{activity.code}
                             td #{activity.courses}
-                            td #{activity.day}
+                            td !{activity.day.replace(/1/g, 'L').replace(/2/g, 'M').replace(/3/g, 'X').replace(/4/g, 'J').replace(/5/g, 'V').replace(/6/g, 'S')}
                             td #{activity.schedule}
                             td #{activity.teachers}
                 // /.box-body

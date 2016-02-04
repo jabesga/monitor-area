@@ -11,27 +11,27 @@ block content
                 a(href='/')
                     i.fa.fa-dashboard
                     |  Dashboard                   
-            li.active Mis extraescolares
+            li.active Mis clubs
     // Main content
     section.content     
         .row
             .col-xs-12
             .box
                 .box-header
-                  h3.box-title Mis extraescolares
-                  p.help-block Pulsa sobre un colegio para acceder a la lista de alumnos de ese grupo
+                  h3.box-title Mis clubs
+                  p.help-block Pulsa sobre un club para acceder a la lista de alumnos de ese grupo
 
                 // /.box-header
                 .box-body.table-responsive.no-padding
                   table.table.table-hover
                     tbody
                       tr
-                        th Colegio
+                        th Lugar
                         th Codigo
                         th Dia
                         th Hora
                       each activity in my_activities
-                        if activity.type == "Extraescolar"   
+                        if activity.type == "Club"   
                           tr(href='/classroom?code=#{activity.code}')
                             td #{activity.school}
                             td #{activity.code}
