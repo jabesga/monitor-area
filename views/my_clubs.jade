@@ -33,7 +33,7 @@ block content
                       each activity in my_activities
                         if activity.type == "Club"   
                           tr(href='/classroom?code=#{activity.code}')
-                            td #{activity.school}
+                            td !{activity.school.toUpperCase()}
                             td #{activity.code}
                             td !{activity.day.replace(/1/g, 'L').replace(/2/g, 'M').replace(/3/g, 'X').replace(/4/g, 'J').replace(/5/g, 'V').replace(/6/g, 'S')}
                             td #{activity.schedule}

@@ -37,14 +37,25 @@ block content
                                     th.nombre_cell Nombre y apellidos
                                 each student in students_list
                                     tr
-                                        td #{student.name} #{student.surname1} #{student.surname2}
+                                        - var name = student.name.toUpperCase()
+                                        - var surname1 = ""
+                                        - var surname2 = ""
+
+                                        if student.surname1 != undefined
+                                            - var surname1 = student.surname1.toUpperCase()
+
+                                         if student.surname2 != undefined
+                                            - var surname2 = student.surname2.toUpperCase() 
+
+                                        td= name + " " + surname1 + " " + surname2
                     // /.box-body
                 // /.box
             .col-xs-12
+                p.help-block Utiliza la siguiente herramienta para pasar lista e informar de los alumnos ausentes
                 button.btn.btn-block.btn-default.btn-lg.comprobar_asistencia#attendanceDis(onclick="activateAttendance()" type='button' style="display: block;") Comprobar asistencia
 
                 .col-xs-12.modo_asistencia#attendanceAct(style="display: None;")
-                    p.help-block Marca los estudiantes ausentes
+                    p.help-block Marca AHORA los estudiantes AUSENTES tocando sobre el nombre de cada uno (la fila se volvera roja)
                     button.btn.btn-block.btn-default.btn-lg.confirmar_asistencia#confirmAttendance(type='button') Confirmar faltas de asistencia
                     button.btn.btn-block.btn-default.btn-lg.cancelar_asistencia#cancelAttendance(type='button') Cancelar proceso asistencia
       // Your Page Content Here

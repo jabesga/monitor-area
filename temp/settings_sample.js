@@ -1,12 +1,12 @@
-var settings = {
-    gmailConfig = {
+module.exports = {
+
+    gmailConfig: {
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
-            user: 'user@gmail.com',
-            pass: 'pass'
+            user: 'test@test.com',
+            pass: 'test'
         }
+    }
 }
-
-module.exports = settings
