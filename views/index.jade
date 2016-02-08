@@ -18,17 +18,27 @@ block content
     section.content
         .row
             .col-xs-12
+                .col-lg-12.col-xs-12
+                  // small box
+                  .small-box.bg-blue
+                    .inner
+                      h3 ULTIMOS CAMBIOS
+                      li
+                        ol Las listas de asistencia ahora se pasan marcando los alumnos que ESTÁN presentes.
+                    .icon
+                      i.ion.ion-information-circled              
                 if using_gen_password == true
-                    .col-lg-12.col-xs-6
-                      // small box
-                      .small-box.bg-red
-                        .inner
-                          h4 Cambia tu contraseña!
-                          p Parece que aún estás usando la contraseña generada por defecto. Te recomendamos cambiar tu contraseña a una que recuerdes más facilmente
-                        .icon
-                          i.ion.ion-key
-                        a.small-box-footer(href='/change-password')
-                          | Cambiar mi contraseña 
-                          i.fa.fa-arrow-circle-right
+                  .col-lg-12.col-xs-12
+                    // small box
+                    .small-box.bg-red
+                      .inner
+                        h3 CAMBIA TU CONTRASEÑA!
+                        p Parece que aún estás usando la contraseña generada por defecto. Te recomendamos cambiar tu contraseña a una que recuerdes más facilmente
+                      .icon
+                        i.ion.ion-key
+                      a.small-box-footer(href='/change-password')
+                        | Cambiar mi contraseña 
+                        i.fa.fa-arrow-circle-right
+                                          
       // Your Page Content Here
     // /.content

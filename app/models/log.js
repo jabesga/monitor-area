@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
 
 var schema = new mongoose.Schema({
-    student: String,
     group: String,
-    timestamp: String
+    timestamp: String,
+    attending_students: [String]
     }, {
         collection: 'logs'
     });

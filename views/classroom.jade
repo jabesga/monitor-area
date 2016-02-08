@@ -19,11 +19,11 @@ block content
         
     // Main content
     section.content
-        #alertAttendance.alert.alert-success.alert-dismissible(style="display: none;")
-                button.close#alertAttendanceClose(type='button', aria-hidden='true') ×
-                h4
-                    i.icon.fa.fa-check
-                    | Lista de asistencia guardada con exito!
+        #alertAttendance.alert.alert-success.alert-dismissible(style="display: none; ")
+            button.close#alertAttendanceClose(type='button', aria-hidden='true') ×
+            h4
+                i.icon.fa.fa-check
+                | Lista de asistencia guardada con exito!
         .row
             .col-xs-12
                 .box
@@ -51,20 +51,28 @@ block content
                     // /.box-body
                 // /.box
             .col-xs-12
-                p.help-block Utiliza la siguiente herramienta para pasar lista e informar de los alumnos ausentes
-                button.btn.btn-block.btn-default.btn-lg.comprobar_asistencia#attendanceDis(onclick="activateAttendance()" type='button' style="display: block;") Comprobar asistencia
+                p.help-block Utiliza la siguiente herramienta para pasar lista de los estudiantes:
+                button.btn.btn-block.btn-default.btn-lg.comprobar_asistencia#attendanceDis(onclick="activateAttendance()" type='button' style="background-color: yellow; display: block;") Comprobar asistencia
 
                 .col-xs-12.modo_asistencia#attendanceAct(style="display: None;")
-                    p.help-block Marca AHORA los estudiantes AUSENTES tocando sobre el nombre de cada uno (la fila se volvera roja)
-                    button.btn.btn-block.btn-default.btn-lg.confirmar_asistencia#confirmAttendance(type='button') Confirmar faltas de asistencia
-                    button.btn.btn-block.btn-default.btn-lg.cancelar_asistencia#cancelAttendance(type='button') Cancelar proceso asistencia
+                    p.help-block Marca AHORA los estudiantes tocando sobre el nombre de cada uno (la fila se volvera verde)
+                    .col-xs-6
+                        button.btn.btn-block.btn-default.btn-lg.confirmar_asistencia#confirmAttendance(style="background-color: #00FF00;" type='button') Confirmar
+                    .col-xs-6
+                        button.btn.btn-block.btn-default.btn-lg.cancelar_asistencia#cancelAttendance(style="background-color: #FF0000;" type='button') Cancelar
       // Your Page Content Here
     // /.content
 
     script(src='plugins/jQuery/jQuery-2.1.4.min.js')
     script.
+        var attending_list = [];
+        //var temp_list = !{JSON.stringify(students_list)};
+        //temp_list.forEach(function(element, index, array){
+         //  missing_list.push(element.name + " " + element.surname1 + " " + element.surname2);
+        //});
+        //var all_students = missing_list.slice();
+
         var attendanceMode = false;
-        var list = [];
 
         function showAttendanceModeMenu(){
             $('#attendanceAct').css('display','block');
@@ -87,15 +95,15 @@ block content
 
         function updateStudentInAttendateList(student){
             if(student){ // if not null
-                var position = $.inArray(student.html(), list); // get position
-                if(position != -1){ // if is in list
-                    list.splice(position, 1); //  remove it
-                    student.css("background-color", "White");
+                var position = $.inArray(student.html(), attending_list); // get position
+                if(position == -1){ // if is in list
+                    attending_list.push(student.html()); // add it
+                    student.css("background-color", "#00FF00");
                 }
                 else{ // if not in list
-                    list.push(student.html()); // add it
-                    student.css("background-color", "OrangeRed");
-                }                    
+                    attending_list.splice(position, 1); //  remove it
+                    student.css("background-color", "White"); 
+                }
             }
         }
 
@@ -119,11 +127,12 @@ block content
                 $.ajax({
                     url: '/register-attendance',
                     type: "post",
-                    data: { 'list[]': list, group: '#{group_code}' },
+                    data: { 'attending_list[]': attending_list, group: '#{group_code}' },
                     success: function( data ){
                         if(data.success){
                             $('#alertAttendance').css('display','block');
                             hideAttendanceModeMenu();
+                            window.scrollTo(0, 0);
                         }
                     }
                 });

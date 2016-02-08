@@ -158,15 +158,10 @@ module.exports = function(app, passport){
         });
     });
 
-    app.post('/attendance', auth.isLoggedIn, function(req, res, next){
-        console.log("\tMISSING: " + request.body.students_missing);
-    });
-
     //@TODO: Teachers field must be an array
     app.get('/my-schools', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role != coordinator_name){
             Activities.find({'teachers': req.user.name}, null, {sort: {'day': 1, 'schedule': 1}}, function(err, all_my_activities){
-                console.log(all_my_activities);
                 user_data = {
                     'user_name': req.user.name,
                     'user_image': '/images/logo.png',
@@ -182,7 +177,6 @@ module.exports = function(app, passport){
     app.get('/my-clubs', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role != coordinator_name){
             Activities.find({'teachers': req.user.name}, null, {sort: {'day': 1, 'schedule': 1}}, function(err, all_my_activities){
-                console.log(all_my_activities);
                 user_data = {
                     'user_name': req.user.name,
                     'user_image': '/images/logo.png',
@@ -198,7 +192,6 @@ module.exports = function(app, passport){
     app.get('/classroom', auth.isLoggedIn, function(req, res, next) { // TODO: Cambiar a /monitores
         if(req.user.role != coordinator_name){
             Students.find({'group': req.query.code}, null, {sort: {'_id': 1}}, function(err, students_list){
-                console.log(students_list);
                 //@TODO
                 user_data = {
                     'user_name': req.user.name,
@@ -217,29 +210,24 @@ module.exports = function(app, passport){
     });
 
     app.post('/register-attendance', auth.isLoggedIn, function(req, res, next) {
-        var list = [];
-        list = list.concat(req.body['list[]']); // if only one element is an string
+        var attending_list = [];
+        attending_list = attending_list.concat(req.body['attending_list[]']); // if only one element is an string
 
         var group = req.body['group'];
         var date = moment().format('MMMM Do YYYY, h:mm:ss a');
 
-        logs_list = [];
-        list.forEach(function(element, index, array){
-            var log = new Logs({
-                'student': element,
-                'group': group,
-                'timestamp': date
-            })
-            logs_list.push(log);
-        });        
-
-        Logs.create(logs_list, function(err, inserted){
+        var log = new Logs({
+            'group': group,
+            'timestamp': date,
+            'attending_students': attending_list,
+        });
+        Logs.create(log, function(err, inserted){
             if(err){
                 throw err;
                 console.log(err);
             }
             else{
-                console.log('\tLogs registrados');
+                console.log('\tLog registrados');
             }
         });
         res.send({'success': true});       
