@@ -26,9 +26,11 @@ module.exports = {
     },
 
     update_extranet : function(req, res, next){
-        console.log('TOCADO');
-        console.log(req.body['data']);
-        res.send('sadasdsad');
+	var data = req.body;
+	if(data['secret_key'] == 'albertosurfea'){
+		console.log(data['data']);
+	}
+        res.send('Data received');
     },
 
     error_development : function(err, req, res, next) {
