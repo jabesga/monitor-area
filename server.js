@@ -43,6 +43,7 @@ var coordinator = require('./app/coordinator');
 
 // Routes
 app.get('/', auth.isLoggedIn, site.index);
+app.post('/update-extranet', site.update_extranet);
 
 app.route('/login').get(auth.login).post(passport.authenticate('local', auth.redirection_options));
 //app.post('/recover-password', auth.recover_password);

@@ -25,6 +25,12 @@ module.exports = {
         res.render('change_password', index_data);
     },
 
+    update_extranet : function(req, res, next){
+        console.log('TOCADO');
+        console.log(req.body['data']);
+        res.send('sadasdsad');
+    },
+
     error_development : function(err, req, res, next) {
         console.error(err.stack);
         res.status(500).send(err.stack);
