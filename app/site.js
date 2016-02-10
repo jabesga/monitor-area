@@ -28,7 +28,12 @@ module.exports = {
     update_extranet : function(req, res, next){
 	var data = req.body;
 	if(data['secret_key'] == 'albertosurfea'){
-		console.log(data['data']);
+		var list = JSON.parse(data['data']);
+		var fs = require('fs');
+		var stream = fs.createWriteStream("./my_file.txt");
+		stream.once('open', function(fd) {
+			stream.write(list[0]);
+		});
 	}
         res.send('Data received');
     },
