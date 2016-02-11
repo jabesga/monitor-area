@@ -127,7 +127,8 @@ block content
                 $.ajax({
                     url: '/register-attendance',
                     type: "post",
-                    data: { 'attending_list[]': attending_list, group: '#{group_code}' },
+                    contentType: "application/json",
+                    data: JSON.stringify({ 'attending_list[]': attending_list, group: '#{group_code}' }),
                     success: function( data ){
                         if(data.success){
                             $('#alertAttendance').css('display','block');
