@@ -211,6 +211,7 @@ module.exports = function(app, passport){
 
     app.post('/register-attendance', auth.isLoggedIn, function(req, res, next) {
         var attending_list = [];
+        console.log(req.body['attending_list[]']);
         attending_list = attending_list.concat(req.body['attending_list[]']); // if only one element is an string
 
         var group = req.body['group'];
