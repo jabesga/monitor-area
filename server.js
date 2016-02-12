@@ -20,7 +20,7 @@ app.use(compress());
 app.use(logger('dev')); // log every request to the console
 app.use(cookieParser());
 
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // ¿?
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false })); // ¿?
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.text({limit: '50mb'}));
 app.use(session({
