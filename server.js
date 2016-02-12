@@ -15,7 +15,7 @@ var compress = require('compression');
 
 mongoose.connect(configDB.url);
 
-
+app.set('x-powered-by', false)
 app.use(compress());  
 app.use(logger('dev')); // log every request to the console
 app.use(cookieParser());
