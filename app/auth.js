@@ -10,7 +10,7 @@ module.exports = {
         }
         else{
             // req.session.returnTo = req.path; // save the last page to go back later
-            res.redirect('/login');
+            res.redirect('/login/');
         }
     },
 
