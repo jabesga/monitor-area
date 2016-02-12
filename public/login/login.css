@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Roboto);*{font-family:'Roboto', sans-serif;}
+@import '../fonts/css.css?family=Roboto';*{font-family:'Roboto', sans-serif;}
 #login-modal .modal-dialog{width:350px;}
 #login-modal input[type=text], input[type=password]{margin-top:10px;}
 #div-login-msg,
