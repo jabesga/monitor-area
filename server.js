@@ -11,10 +11,12 @@ var path = require('path'); // to make path.join
 var mongoose = require('mongoose');
 var configDB = require('./config/database.js')
 var passport = require('passport');
-
+var compress = require('compression');
 
 mongoose.connect(configDB.url);
 
+
+app.use(compress());  
 app.use(logger('dev')); // log every request to the console
 app.use(cookieParser());
 
