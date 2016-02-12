@@ -20,7 +20,7 @@ app.use(compress());
 app.use(logger('dev')); // log every request to the console
 app.use(cookieParser());
 
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); // ¿?
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false })); // ¿?
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.text({limit: '50mb'}));
 app.use(session({
@@ -48,7 +48,7 @@ var coordinator = require('./app/coordinator');
 app.get('/', auth.isLoggedIn, site.index);
 app.post('/update-extranet', site.update_extranet);
 
-app.route('/login').get(auth.login).post(passport.authenticate('local', auth.redirection_options));
+app.route('/login/').get(auth.login).post(passport.authenticate('local', auth.redirection_options));
 //app.post('/recover-password', auth.recover_password);
 app.get('/logout', auth.isLoggedIn, auth.logout);
 
