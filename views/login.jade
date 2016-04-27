@@ -1,56 +1,25 @@
-html
-    head
-        title Camptecnologico: Extranet
-        meta(name="viewport" content="width=device-width, initial-scale=1.0")
-        link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
-        link(rel='stylesheet', href='/login/login.css')
-
-
-    body(style="background-color: LightSteelBlue")
-        #login-modal(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true' style="position: fixed;top:50%; left:50%; transform: translate(-50%, -50%);")
-            .modal-dialog
-                .modal-content
-                    .modal-header(align='center')
-                        img#img_logo.img-circle(src='/images/logo.png')
-                    #div-forms
-                        form#login-form(action="/login" method="post")
-                            .modal-body
-                                if message != ""
-                                    #div-login-msg.error
-                                        #icon-login-msg.glyphicon.glyphicon-remove.error
-                                        span#text-login-msg #{message}                       
-                                else
-                                    #div-login-msg
-                                        #icon-login-msg.glyphicon.glyphicon-chevron-right
-                                        span#text-login-msg Accede con tu correo y contraseña.
-                                input#login_username.form-control(type='text', name="username", placeholder='Nombre de usuario', required='')
-                                input#login_password.form-control(type='password', name="password", placeholder='Contraseña', required='')
-                                //
-                                    .checkbox
-                                      label
-                                        input(type='checkbox')
-                                        |  Recuérdame
-                            .modal-footer
-                                div
-                                    button.btn.btn-primary.btn-lg.btn-block(type='submit') Acceder
-                                //div
-                                    button#login_lost_btn.btn.btn-link(type='button') Olvidaste tu contraseña?
-                        // End # Login Form
-
-                        // Begin | Lost Password Form
-                        form#lost-form(style='display:none;' action="/lost-password" method="post")
-                            .modal-body
-                                #div-lost-msg
-                                    #icon-lost-msg.glyphicon.glyphicon-chevron-right
-                                    span#text-lost-msg Escribe tu email.
-                                input#lost_email.form-control(type='text', placeholder='E-Mail', required='' name="email")
-                            .modal-footer
-                                div
-                                    button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar
-                                div
-                                    button#lost_login_btn.btn.btn-link(type='button') Login
-                        // End | Lost Password Form
-                  // End # DIV Form
-
-        script(src="/javascripts/jquery-2.1.4.js" type="text/javascript")
-        script(src="/login/login.js")
+doctype html
+head
+  meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+  meta(name='viewport', content='width=device-width,initial-scale=1,user-scalable=1')
+  title Acceso extranet - Camptecnologico
+  link(href='http://fonts.googleapis.com/css?family=Lato:100italic,100,300italic,300,400italic,400,700italic,700,900italic,900', rel='stylesheet', type='text/css')
+  link(rel='stylesheet', type='text/css', href='static/login/assets/bootstrap/css/bootstrap.min.css')
+  link(rel='stylesheet', type='text/css', href='static/login/assets/css/styles.css')
+  // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+  //if lt IE 9
+    script(src='https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js')
+    script(src='https://oss.maxcdn.com/respond/1.4.2/respond.min.js')
+section.container.login-form
+  section
+    form(method='post', action='/login', role='login')
+      img.img-responsive(src='static/login/assets/images/logo.png', alt='')
+      .form-group
+        input.form-control(autofocus type='email', name='username', required='', placeholder='Introduce tu email')
+        span.glyphicon.glyphicon-user
+      .form-group
+        input.form-control(type='password', name='password', required='', placeholder='Introduce tu contraseña')
+        span.glyphicon.glyphicon-lock
+      button.btn.btn-primary.btn-block(type='submit', name='go') Acceder
+script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+script(src='static/login/assets/bootstrap/js/bootstrap.min.js')
